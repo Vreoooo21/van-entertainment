@@ -90,10 +90,6 @@
     transition:.4s;
 }
 
-.artist-card:hover img{
-    transform:scale(1.08);
-}
-
 .artist-info{
     padding:25px;
     text-align:left;

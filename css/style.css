@@ -194,9 +194,11 @@ body{
         text-align:center;
     }
 
-    .artist-grid{
-        grid-template-columns:1fr;
-    }
+  .artist-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:30px;
+}
 
     .news-container{
         flex-direction:column;
@@ -274,4 +276,72 @@ body{
 
     transform:translateY(0);
 
+}
+
+/* ==========================
+   MOBILE RESPONSIVE
+========================== */
+
+@media (max-width: 768px){
+
+    nav{
+        padding:15px 20px;
+        flex-direction:column;
+        gap:15px;
+    }
+
+    nav ul{
+        flex-wrap:wrap;
+        justify-content:center;
+        gap:12px;
+    }
+
+    nav ul li a{
+        font-size:15px;
+    }
+
+}
+@media screen and (max-width: 768px){
+
+    .hero{
+        padding: 120px 20px 60px;
+    }
+
+    .hero h1{
+        font-size: 38px !important;
+        line-height: 1.2;
+        word-break: break-word;
+    }
+
+    .hero h2{
+        font-size: 18px !important;
+        letter-spacing: 2px;
+    }
+
+    .hero-tagline{
+        font-size: 24px !important;
+    }
+
+    .hero-description{
+        font-size: 16px !important;
+        width: 100%;
+    }
+
+    .hero-buttons{
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .btn-primary,
+    .btn-secondary{
+        width: 260px;
+    }
+
+}
+
+@media (max-width:768px){
+
+    .artist-container{
+        grid-template-columns:1fr;
+    }
 }
