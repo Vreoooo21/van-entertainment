@@ -1,0 +1,350 @@
+.profile-hero{
+
+    padding:170px 10% 80px;
+
+    text-align:center;
+
+}
+
+.profile-hero img{
+
+    width:320px;
+
+    border-radius:20px;
+
+    margin-bottom:30px;
+
+}
+
+.profile-hero h1{
+
+    font-size:60px;
+
+}
+
+.profile-hero h3{
+
+    color:#B8B8B8;
+
+    margin:20px 0;
+
+}
+
+.profile-hero p{
+
+    color:#ccc;
+
+}
+
+.profile-info{
+
+    display:flex;
+
+    justify-content:center;
+
+    padding:60px;
+
+}
+
+.info-card{
+
+    width:600px;
+
+    background:#1b1b1b;
+
+    padding:40px;
+
+    border-radius:20px;
+
+    border:1px solid rgba(255,255,255,.08);
+
+}
+
+.info-card h2{
+
+    margin-bottom:30px;
+
+}
+
+.info-card p{
+
+    margin:18px 0;
+
+    color:#bbb;
+
+}
+
+.members{
+
+    padding:100px 10%;
+
+    text-align:center;
+
+}
+
+.members h2{
+
+    font-size:42px;
+
+    margin-bottom:60px;
+
+}
+
+.member-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+    gap:30px;
+
+}
+
+.member-card{
+
+    background:#1b1b1b;
+
+    border-radius:18px;
+
+    overflow:hidden;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    transition:.3s;
+
+}
+
+.member-card:hover{
+
+    transform:translateY(-10px);
+
+    border-color:#B8B8B8;
+
+}
+
+.member-card img{
+
+    width:100%;
+
+    height:280px;
+
+    object-fit:cover;
+
+}
+
+.member-card h3{
+
+    margin-top:20px;
+
+}
+
+.member-card p{
+
+    margin:15px 0 25px;
+
+    color:#B8B8B8;
+
+}
+
+/* ==========================
+   DISCOGRAPHY
+========================== */
+
+.discography{
+    padding:100px 10%;
+    text-align:center;
+}
+
+.discography h2{
+    font-size:42px;
+    margin-bottom:60px;
+}
+
+.album-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:30px;
+}
+
+.album-card{
+    background:#1b1b1b;
+    border-radius:18px;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,.08);
+    transition:.3s;
+}
+
+.album-card:hover{
+    transform:translateY(-10px);
+    border-color:#B8B8B8;
+}
+
+.album-card img{
+    width:100%;
+    height:320px;
+    object-fit:cover;
+}
+
+.album-card h3{
+    margin:20px 0 10px;
+}
+
+.album-card span{
+    display:block;
+    color:#B8B8B8;
+    margin-bottom:25px;
+}
+
+.music-videos{
+
+    padding:100px 10%;
+
+    text-align:center;
+
+}
+
+.music-videos h2{
+
+    font-size:42px;
+
+    margin-bottom:60px;
+
+}
+
+.video-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+
+    gap:35px;
+
+}
+
+.video-card{
+
+    background:#1b1b1b;
+
+    border-radius:18px;
+
+    overflow:hidden;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    transition:.3s;
+
+}
+
+.video-card:hover{
+
+    transform:translateY(-10px);
+
+}
+
+.video-card img{
+
+    width:100%;
+
+    height:220px;
+
+    object-fit:cover;
+
+}
+
+.video-card h3{
+
+    margin-top:20px;
+
+}
+
+.video-card p{
+
+    color:#B8B8B8;
+
+    margin:10px 0;
+
+}
+
+.video-card a{
+
+    display:inline-block;
+
+    margin:20px 0 25px;
+
+    padding:10px 25px;
+
+    background:#B8B8B8;
+
+    color:#111;
+
+    text-decoration:none;
+
+    border-radius:30px;
+
+    font-weight:bold;
+
+}
+
+/* ==========================
+   MUSIC VIDEOS
+========================== */
+
+.music-videos{
+    padding:100px 10%;
+    text-align:center;
+}
+
+.music-videos h2{
+    font-size:42px;
+    margin-bottom:60px;
+}
+
+.video-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+    gap:30px;
+}
+
+.video-card{
+    position:relative;
+    background:#1b1b1b;
+    border-radius:18px;
+    overflow:hidden;
+    transition:.3s;
+}
+
+.video-card:hover{
+    transform:translateY(-10px);
+}
+
+.video-card img{
+    width:100%;
+    height:220px;
+    object-fit:cover;
+}
+
+.play-button{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    width:70px;
+    height:70px;
+    border-radius:50%;
+    background:rgba(0,0,0,.7);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:30px;
+    color:white;
+}
+
+.video-card h3{
+    margin:20px 0 10px;
+}
+
+.video-card span{
+    display:block;
+    color:#B8B8B8;
+    margin-bottom:20px;
+}

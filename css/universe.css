@@ -1,0 +1,49 @@
+.logo img{
+
+    width:55px;
+
+    transition:.4s;
+
+}
+
+.logo img:hover{
+
+    transform:rotate(10deg) scale(1.08);
+
+}
+
+.universe-hero{
+
+height:100vh;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+flex-direction:column;
+
+text-align:center;
+
+background:#111;
+
+}
+
+.universe-hero h1{
+
+font-size:70px;
+
+letter-spacing:6px;
+
+}
+
+.universe-hero p{
+
+margin-top:20px;
+
+font-size:22px;
+
+color:#aaa;
+
+}

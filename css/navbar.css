@@ -1,0 +1,49 @@
+header{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    z-index:1000;
+}
+
+nav{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:20px 60px;
+
+    background:rgba(17,17,17,.75);
+
+    backdrop-filter:blur(12px);
+
+    z-index:999;
+}
+
+.logo img{
+    height:65px;
+}
+
+nav ul{
+    display:flex;
+    gap:35px;
+}
+
+nav a{
+
+    color:white;
+    text-decoration:none;
+    transition:.3s;
+
+}
+
+nav a:hover{
+
+    color:#C0C0C0;
+
+}
