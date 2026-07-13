@@ -26,7 +26,17 @@ nav{
 }
 
 .logo img{
-    height:65px;
+
+    width:55px;
+
+    transition:.4s;
+
+}
+
+.logo img:hover{
+
+    transform:rotate(10deg) scale(1.08);
+
 }
 
 nav ul{
