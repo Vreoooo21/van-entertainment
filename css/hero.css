@@ -35,9 +35,9 @@
 
 .hero-logo{
     width:320px;
+    max-width:80%;
     margin-bottom:40px;
 }
-
 .hero-content{
 
     position:relative;
@@ -75,7 +75,7 @@
 }
 .hero p{
     width:650px;
-    max-width:90%;
+    max-width:100%;
     color:#d9d9d9;
     margin:40px auto;
     line-height:1.8;
