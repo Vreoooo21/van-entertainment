@@ -1,38 +1,37 @@
 window.addEventListener("load", function () {
 
-    setTimeout(() => {
+    const loader = document.getElementById("loader");
 
-        document.getElementById("loader").style.display = "none";
-
-    }, 1800);
+    if(loader){
+        setTimeout(() => {
+            loader.style.display = "none";
+        }, 1800);
+    }
 
 });
 
 const topBtn = document.getElementById("topBtn");
 
-window.onscroll = function(){
+if(topBtn){
 
-    if(document.documentElement.scrollTop > 300){
+    window.addEventListener("scroll", function(){
 
-        topBtn.style.display = "block";
-
-    }else{
-
-        topBtn.style.display = "none";
-
-    }
-
-}
-
-topBtn.onclick = function(){
-
-    window.scrollTo({
-
-        top:0,
-
-        behavior:"smooth"
+        if(document.documentElement.scrollTop > 300){
+            topBtn.style.display = "block";
+        }else{
+            topBtn.style.display = "none";
+        }
 
     });
+
+    topBtn.onclick = function(){
+
+        window.scrollTo({
+            top:0,
+            behavior:"smooth"
+        });
+
+    };
 
 }
 
@@ -42,29 +41,31 @@ window.addEventListener("scroll",()=>{
 
     faders.forEach(item=>{
 
-        const top=item.getBoundingClientRect().top;
+        const top = item.getBoundingClientRect().top;
 
-        if(top<window.innerHeight-100){
-
+        if(top < window.innerHeight - 100){
             item.classList.add("show");
-
         }
 
-    })
+    });
 
-})
+});
 
 const menuIcon = document.querySelector(".menu-icon");
 const navLinks = document.querySelector(".nav-links");
 
-menuIcon.addEventListener("click", () => {
+if(menuIcon && navLinks){
 
-    navLinks.classList.toggle("active");
+    menuIcon.addEventListener("click",()=>{
 
-    if(navLinks.classList.contains("active")){
-        menuIcon.textContent = "✕";
-    }else{
-        menuIcon.textContent = "☰";
-    }
+        navLinks.classList.toggle("active");
 
-});
+        if(navLinks.classList.contains("active")){
+            menuIcon.textContent = "✕";
+        }else{
+            menuIcon.textContent = "☰";
+        }
+
+    });
+
+}

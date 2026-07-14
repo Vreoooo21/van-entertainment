@@ -185,3 +185,19 @@
     font-weight:bold;
 
 }
+
+.video-card{
+
+    text-decoration:none;
+
+    color:white;
+
+    display:block;
+
+}
+
+.video-card:hover{
+
+    transform:translateY(-8px);
+
+}

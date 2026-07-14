@@ -233,3 +233,13 @@
 .survival-info span{
     color:#888;
 }
+
+.menu-icon{
+    position: relative;
+    z-index: 99999 !important;
+}
+
+.survival-content .btn-primary{
+    display: inline-block;
+    margin-top: 30px;
+}

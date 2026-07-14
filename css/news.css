@@ -1,121 +1,142 @@
+/* ==========================
+   LOGO
+========================== */
+
 .logo img{
-
     width:55px;
-
     transition:.4s;
-
 }
 
 .logo img:hover{
-
     transform:rotate(10deg) scale(1.08);
-
 }
 
+/* ==========================
+   HERO
+========================== */
+
 .news-hero{
-
-    padding:180px 10% 80px;
-
+    padding:170px 20px 80px;
     text-align:center;
-
 }
 
 .news-hero h1{
-
     font-size:60px;
-
+    margin-bottom:20px;
+    font-family:"Cinzel", serif;
 }
 
 .news-hero p{
-
     max-width:700px;
-
-    margin:25px auto;
-
+    margin:auto;
     color:#bbb;
-
+    line-height:1.8;
 }
+
+/* ==========================
+   NEWS GRID
+========================== */
 
 .news-page{
-
-    width:85%;
-
-    margin:auto;
+    max-width:1200px;
+    margin:0 auto;
+    padding:0 20px 100px;
 
     display:grid;
-
-    grid-template-columns:repeat(auto-fit,minmax(380px,1fr));
-
+    grid-template-columns:repeat(auto-fit,minmax(330px,1fr));
     gap:35px;
-
-    padding-bottom:100px;
-
 }
 
+/* ==========================
+   CARD
+========================== */
+
 .news-card{
-
     background:#1b1b1b;
-
     border-radius:20px;
-
     overflow:hidden;
-
-    transition:.3s;
-
+    border:1px solid rgba(255,255,255,.08);
+    transition:.35s;
 }
 
 .news-card:hover{
-
-    transform:translateY(-8px);
-
+    transform:translateY(-10px);
+    border-color:#B8B8B8;
+    box-shadow:0 15px 35px rgba(0,0,0,.35);
 }
 
 .news-card img{
-
     width:100%;
-
-    height:250px;
-
+    height:240px;
     object-fit:cover;
-
 }
 
 .news-card span{
-
     display:block;
-
-    margin:25px;
-
-    color:#B8B8B8;
-
+    margin:20px 25px 10px;
+    color:#999;
+    font-size:14px;
 }
 
 .news-card h2{
-
-    margin:0 25px;
-
+    margin:0 25px 15px;
+    font-size:26px;
+    line-height:1.4;
 }
 
 .news-card p{
-
-    margin:20px 25px;
-
-    color:#ccc;
-
-    line-height:1.7;
-
+    margin:0 25px 25px;
+    color:#bbb;
+    line-height:1.8;
 }
 
 .news-card a{
-
     display:inline-block;
-
     margin:0 25px 30px;
-
-    color:#C0C0C0;
-
+    color:#B8B8B8;
     text-decoration:none;
+    font-weight:600;
+    transition:.3s;
+}
 
-    font-weight:bold;
+.news-card a:hover{
+    color:#fff;
+}
+
+/* ==========================
+   RESPONSIVE
+========================== */
+
+@media screen and (max-width:768px){
+
+    .news-hero{
+        padding:130px 20px 60px;
+    }
+
+    .news-hero h1{
+        font-size:38px;
+    }
+
+    .news-hero p{
+        font-size:15px;
+    }
+
+    .news-page{
+        grid-template-columns:1fr;
+        gap:25px;
+        padding:0 20px 60px;
+    }
+
+    .news-card img{
+        height:220px;
+    }
+
+    .news-card h2{
+        font-size:22px;
+    }
+
+    .news-card p{
+        font-size:15px;
+    }
 
 }
