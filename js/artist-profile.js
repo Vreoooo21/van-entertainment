@@ -39,6 +39,7 @@ function renderMembers(members = []) {
             <div class="member-card-body">
                 <h3>${escapeHtml(member.name)}</h3>
                 <p>${escapeHtml(member.position || "Member")}</p>
+                ${member.birth_date ? `<p class="member-birthday"><b>Birthday</b><span>${escapeHtml(formatDate(member.birth_date))}</span></p>` : ""}
                 ${member.description ? `<small>${escapeHtml(member.description)}</small>` : ""}
             </div>
         </article>

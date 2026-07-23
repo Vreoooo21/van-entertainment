@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="VAN Voice community chat and private feedback center." name="description"/>
+<title>VAN Voice | VAN ENTERTAINMENT</title>
+<link href="images/favicon.png" rel="icon" type="image/png"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&amp;family=Poppins:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="css/style.css" rel="stylesheet"/>
+<link href="css/navbar.css" rel="stylesheet"/>
+<link href="css/footer.css" rel="stylesheet"/>
+<link href="css/responsive.css" rel="stylesheet"/>
+<link href="css/voice.css" rel="stylesheet"/>
+</head>
+<body>
+<button aria-label="Back to top" id="topBtn">↑</button>
+<header class="site-header">
+<nav class="site-nav">
+<a class="logo" href="index.html">
+<img alt="VAN ENTERTAINMENT" src="images/banner 1.png"/>
+</a>
+<ul class="nav-links"><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="universe.html">VAN Universe</a></li><li><a href="leadership.html">Leadership</a></li><li><a href="artists.html">Artists</a></li><li><a href="survival.html">Survival</a></li><li><a href="news.html">News</a></li><li><a href="audition.html">Audition</a></li><li><a class="active" href="voice.html">VAN Voice</a></li><li><a href="contact.html">Contact</a></li></ul>
+<button aria-expanded="false" aria-label="Open navigation" class="menu-icon" type="button">☰</button>
+</nav>
+</header>
+<main>
+<section class="page-hero voice-hero">
+<span class="eyebrow" data-content-key="voice.hero.eyebrow">COMMUNITY &amp; FEEDBACK</span>
+<h1 data-content-key="voice.hero.title">VAN VOICE</h1>
+<p data-content-key="voice.hero.description">
+                Talk with the VAN community, share ideas instantly, or send a private report to the agency.
+            </p>
+</section>
+<section class="voice-app-shell">
+<div aria-label="VAN Voice sections" class="voice-tabs" role="tablist">
+<button aria-controls="communityPanel" aria-selected="true" class="voice-tab active" data-content-key="voice.tab.chat" data-voice-tab="community" id="communityTab" role="tab" type="button">
+                    Community Chat
+                </button>
+<button aria-controls="privatePanel" aria-selected="false" class="voice-tab" data-content-key="voice.tab.private" data-voice-tab="private" id="privateTab" role="tab" type="button">
+                    Private Report
+                </button>
+<button aria-controls="trackingPanel" aria-selected="false" class="voice-tab" data-content-key="voice.tab.track" data-voice-tab="tracking" id="trackingTab" role="tab" type="button">
+                    Track Report
+                </button>
+</div>
+<section aria-labelledby="communityTab" class="voice-panel active" id="communityPanel" role="tabpanel">
+<div class="voice-chat-card">
+<div class="voice-chat-header">
+<div>
+<span aria-hidden="true" class="voice-live-dot"></span>
+<strong>VAN Community Chat</strong>
+<p data-content-key="voice.chat.notice">Public messages appear immediately. Use Private Report for sensitive concerns.</p>
+</div>
+<button aria-label="Refresh messages" class="voice-icon-button" id="refreshVoiceButton" title="Refresh messages" type="button">↻</button>
+</div>
+<div aria-label="Chat filters" class="voice-chat-filters">
+<label>
+<span>Target</span>
+<select id="chatTargetFilter">
+<option value="">All targets</option>
+<option>VAN Agency</option>
+<option>Artist</option>
+<option>Group</option>
+<option>Leadership</option>
+<option>Staff</option>
+<option>Survival Show</option>
+<option>Audition</option>
+<option>Website</option>
+<option>Other</option>
+</select>
+</label>
+<label>
+<span>Category</span>
+<select id="chatCategoryFilter">
+<option value="">All categories</option>
+<option>Suggestion</option>
+<option>Concern</option>
+<option>Complaint</option>
+<option>Question</option>
+<option>Appreciation</option>
+<option>Idea</option>
+<option>Technical Issue</option>
+</select>
+</label>
+</div>
+<div aria-live="polite" class="voice-chat-list" id="publicVoiceList">
+<p class="voice-loading">Loading community messages...</p>
+</div>
+<form class="voice-composer" id="communityVoiceForm">
+<div class="voice-reply-preview" hidden="" id="voiceReplyPreview">
+<div>
+<small>Replying to</small>
+<strong id="voiceReplyName"></strong>
+<p id="voiceReplyText"></p>
+</div>
+<button aria-label="Cancel reply" id="cancelVoiceReply" type="button">×</button>
+</div>
+<div class="voice-composer-fields">
+<label>
+<span>Display name</span>
+<input id="chatName" maxlength="60" placeholder="Your name"/>
+</label>
+<label class="voice-checkbox-label">
+<input id="chatAnonymous" type="checkbox"/>
+<span>Post anonymously</span>
+</label>
+<label>
+<span>Addressed to</span>
+<select id="chatTarget" required="">
+<option value="">Select target</option>
+<option>VAN Agency</option>
+<option>Artist</option>
+<option>Group</option>
+<option>Leadership</option>
+<option>Staff</option>
+<option>Survival Show</option>
+<option>Audition</option>
+<option>Website</option>
+<option>Other</option>
+</select>
+</label>
+<label>
+<span>Specific name</span>
+<input id="chatTargetName" maxlength="100" placeholder="Optional artist, group, or project"/>
+</label>
+<label>
+<span>Category</span>
+<select id="chatCategory" required="">
+<option value="">Select category</option>
+<option>Suggestion</option>
+<option>Concern</option>
+<option>Complaint</option>
+<option>Question</option>
+<option>Appreciation</option>
+<option>Idea</option>
+<option>Technical Issue</option>
+</select>
+</label>
+</div>
+<label class="voice-message-field">
+<span>Message</span>
+<textarea id="chatMessage" maxlength="2000" minlength="2" placeholder="Write your message to VAN Voice..." required="" rows="3"></textarea>
+</label>
+<input aria-hidden="true" autocomplete="off" class="van-honeypot" id="chatWebsite" tabindex="-1"/>
+<div class="voice-composer-footer">
+<p data-content-key="voice.chat.warning">Be respectful. Messages can be reported or removed by VAN moderators.</p>
+<button class="btn-primary" data-content-key="voice.chat.submit" id="chatSubmitButton" type="submit">Send Message</button>
+</div>
+<p aria-live="polite" class="form-result" id="chatResult"></p>
+</form>
+</div>
+</section>
+<section aria-labelledby="privateTab" class="voice-panel" hidden="" id="privatePanel" role="tabpanel">
+<div class="voice-private-grid">
+<div class="cms-form-card voice-private-card">
+<span class="eyebrow" data-content-key="voice.private.eyebrow">CONFIDENTIAL CHANNEL</span>
+<h2 data-content-key="voice.private.title">PRIVATE REPORT</h2>
+<p data-content-key="voice.private.description">
+                            This report will not appear in the community chat. Save the ticket code and PIN after submitting.
+                        </p>
+<form class="cms-form" id="privateVoiceForm">
+<div class="cms-form-grid">
+<label>
+                                    Name
+                                    <input id="privateName" maxlength="100" required=""/>
+</label>
+<label>
+                                    Email
+                                    <input id="privateEmail" required="" type="email"/>
+</label>
+<label>
+                                    WhatsApp (optional)
+                                    <input id="privateWhatsapp" maxlength="40"/>
+</label>
+<label>
+                                    Addressed To
+                                    <select id="privateTarget" required="">
+<option value="">Select target</option>
+<option>VAN Agency</option>
+<option>Artist</option>
+<option>Group</option>
+<option>Leadership</option>
+<option>Staff</option>
+<option>Survival Show</option>
+<option>Audition</option>
+<option>Website</option>
+<option>Other</option>
+</select>
+</label>
+<label>
+                                    Specific Name
+                                    <input id="privateTargetName" maxlength="120" placeholder="Optional"/>
+</label>
+<label>
+                                    Category
+                                    <select id="privateCategory" required="">
+<option value="">Select category</option>
+<option>Concern</option>
+<option>Complaint</option>
+<option>Report</option>
+<option>Technical Issue</option>
+<option>Other</option>
+</select>
+</label>
+<label>
+                                    Priority
+                                    <select id="privatePriority">
+<option>Low</option>
+<option selected="">Normal</option>
+<option>High</option>
+<option>Urgent</option>
+</select>
+</label>
+</div>
+<label>
+                                Title
+                                <input id="privateTitle" maxlength="180" required=""/>
+</label>
+<label>
+                                Report details
+                                <textarea id="privateMessage" maxlength="5000" minlength="10" required="" rows="7"></textarea>
+</label>
+<input aria-hidden="true" autocomplete="off" class="van-honeypot" id="privateWebsite" tabindex="-1"/>
+<button class="btn-primary" data-content-key="voice.private.submit" id="privateSubmitButton" type="submit">Send Private Report</button>
+<p aria-live="polite" class="form-result" id="privateResult"></p>
+</form>
+</div>
+</div>
+</section>
+<section aria-labelledby="trackingTab" class="voice-panel" hidden="" id="trackingPanel" role="tabpanel">
+<div class="voice-private-grid">
+<div class="cms-form-card voice-track-card">
+<span class="eyebrow" data-content-key="voice.track.eyebrow">REPORT TRACKING</span>
+<h2 data-content-key="voice.track.title">CHECK STATUS</h2>
+<p data-content-key="voice.track.description">Enter the ticket code and six-digit PIN from your private report.</p>
+<form class="cms-form" id="trackVoiceForm">
+<label>
+                                Ticket Code
+                                <input id="trackTicketCode" placeholder="VAN-VOICE-..." required=""/>
+</label>
+<label>
+                                6-digit PIN
+                                <input id="trackTicketPin" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" required=""/>
+</label>
+<button class="btn-secondary" data-content-key="voice.track.submit" type="submit">Track Report</button>
+</form>
+<div id="trackVoiceResult"></div>
+</div>
+</div>
+</section>
+</section>
+</main>
+<footer id="footer">
+<div class="footer-container">
+<div class="footer-logo">
+<img alt="VAN Logo" src="images/banner 1.png"/>
+<h2 data-content-key="global.brand.name">VAN ENTERTAINMENT</h2>
+<p data-content-key="global.footer.motto">Old but Gold</p>
+</div>
+<div class="footer-links"><h3 data-content-key="global.footer.navigation_title">Navigation</h3><a href="about.html">About</a><a href="universe.html">VAN Universe</a><a href="leadership.html">Leadership</a><a href="artists.html">Artists</a><a href="survival.html">Survival</a><a href="news.html">News</a><a href="audition.html">Audition</a><a href="voice.html">VAN Voice</a></div>
+<div class="footer-social">
+<h3 data-content-key="global.footer.social_title">Follow Us</h3>
+<a href="https://www.instagram.com/vanentertainment" rel="noopener noreferrer" target="_blank">Instagram</a>
+<a href="https://www.youtube.com/@VAN_ENTERTAINMENT01" rel="noopener noreferrer" target="_blank">YouTube</a>
+<a href="https://www.tiktok.com/@vanentertainment_" rel="noopener noreferrer" target="_blank">TikTok</a>
+<a href="https://whatsapp.com/channel/0029VbBzPhyCRs1x2V2AMz1B" rel="noopener noreferrer" target="_blank">WhatsApp</a>
+</div>
+</div>
+<div class="copyright" data-content-key="global.footer.copyright">
+            © 2026 VAN ENTERTAINMENT. All Rights Reserved.
+        </div>
+</footer>
+<script src="js/script.js" type="module"></script>
+<script src="js/public-cms.js" type="module"></script>
+<script src="js/public-voice.js" type="module"></script>
+</body>
+</html>

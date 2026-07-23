@@ -200,3 +200,648 @@ create policy "van_admin_delete_media" on storage.objects for delete to authenti
  insert into public.admin_users (user_id)
  values ('c28ba16b-2b95-41a4-92e2-bccfd5f3bfeb')
  on conflict (user_id) do nothing;
+
+-- ============================================================
+-- VAN ENTERTAINMENT CMS — EXTENDED MODULES (2026)
+-- Adds roles, editable site content, leadership, auditions,
+-- VAN Voice, custom pages/navigation/theme, and survival CMS.
+-- Safe to run more than once.
+-- ============================================================
+
+create extension if not exists pgcrypto;
+
+-- ---------- ADMIN ROLES ----------
+alter table public.admin_users add column if not exists display_name text;
+alter table public.admin_users add column if not exists role text not null default 'Viewer';
+alter table public.admin_users add column if not exists is_active boolean not null default true;
+alter table public.admin_users add column if not exists updated_at timestamptz not null default now();
+
+do $$
+begin
+    if not exists (
+        select 1 from pg_constraint
+        where conname = 'admin_users_role_check'
+    ) then
+        alter table public.admin_users add constraint admin_users_role_check check (
+            role in (
+                'Founder','Co-Founder','CEO 1','CEO 2','Co-CEO 1','Co-CEO 2',
+                'Manager','Artist Manager','Survival Manager','Audition Manager',
+                'Judge','Editor','Moderator','Viewer'
+            )
+        );
+    end if;
+end $$;
+
+update public.admin_users
+set role = 'Founder', display_name = coalesce(display_name, 'Founder')
+where user_id = 'c28ba16b-2b95-41a4-92e2-bccfd5f3bfeb';
+
+create or replace function public.van_admin_role()
+returns text
+language sql
+stable
+security definer
+set search_path = public
+as $$
+    select role
+    from public.admin_users
+    where user_id = auth.uid() and is_active = true
+    limit 1;
+$$;
+
+create or replace function public.van_is_executive()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+    select coalesce(public.van_admin_role() in (
+        'Founder','Co-Founder','CEO 1','CEO 2','Co-CEO 1','Co-CEO 2'
+    ), false);
+$$;
+
+revoke all on function public.van_admin_role() from public;
+revoke all on function public.van_is_executive() from public;
+grant execute on function public.van_admin_role(), public.van_is_executive() to authenticated;
+
+drop policy if exists "van_admin_read_admin_users" on public.admin_users;
+drop policy if exists "van_executive_insert_admin_users" on public.admin_users;
+drop policy if exists "van_executive_update_admin_users" on public.admin_users;
+drop policy if exists "van_executive_delete_admin_users" on public.admin_users;
+create policy "van_admin_read_admin_users" on public.admin_users
+for select to authenticated
+using (user_id = auth.uid() or public.van_is_executive());
+create policy "van_executive_insert_admin_users" on public.admin_users
+for insert to authenticated
+with check (public.van_is_executive());
+create policy "van_executive_update_admin_users" on public.admin_users
+for update to authenticated
+using (public.van_is_executive()) with check (public.van_is_executive());
+create policy "van_executive_delete_admin_users" on public.admin_users
+for delete to authenticated
+using (public.van_admin_role() in ('Founder','Co-Founder'));
+
+grant select, insert, update, delete on public.admin_users to authenticated;
+
+-- ---------- EDITABLE SITE CONTENT ----------
+create table if not exists public.site_content (
+    content_key text primary key,
+    page_name text not null,
+    label text not null,
+    content_value text not null default '',
+    field_type text not null default 'text' check (field_type in ('text','textarea','url','html')),
+    display_order integer not null default 0,
+    is_public boolean not null default true,
+    updated_at timestamptz not null default now()
+);
+
+alter table public.site_content enable row level security;
+drop policy if exists "van_public_read_site_content" on public.site_content;
+drop policy if exists "van_admin_manage_site_content" on public.site_content;
+create policy "van_public_read_site_content" on public.site_content for select using (is_public = true or public.is_van_admin());
+create policy "van_admin_manage_site_content" on public.site_content for all to authenticated using (public.is_van_admin()) with check (public.is_van_admin());
+grant select on public.site_content to anon, authenticated;
+grant insert, update, delete on public.site_content to authenticated;
+
+create table if not exists public.site_settings (
+    id smallint primary key default 1 check (id = 1),
+    primary_color text not null default '#f0f0f2',
+    accent_color text not null default '#a7a7af',
+    background_color text not null default '#0d0d0f',
+    surface_color text not null default '#18181b',
+    text_color text not null default '#f4f4f5',
+    muted_color text not null default '#9c9ca3',
+    heading_font text not null default 'Cinzel',
+    body_font text not null default 'Poppins',
+    maintenance_mode boolean not null default false,
+    maintenance_message text not null default 'VAN ENTERTAINMENT is currently being updated. Please visit again soon.',
+    admin_whatsapp_display text,
+    updated_at timestamptz not null default now()
+);
+insert into public.site_settings (id) values (1) on conflict (id) do nothing;
+alter table public.site_settings enable row level security;
+drop policy if exists "van_public_read_site_settings" on public.site_settings;
+drop policy if exists "van_admin_manage_site_settings" on public.site_settings;
+create policy "van_public_read_site_settings" on public.site_settings for select using (true);
+create policy "van_admin_manage_site_settings" on public.site_settings for all to authenticated using (public.is_van_admin()) with check (public.is_van_admin());
+grant select on public.site_settings to anon, authenticated;
+grant insert, update, delete on public.site_settings to authenticated;
+
+create table if not exists public.navigation_items (
+    id bigint generated by default as identity primary key,
+    label text not null,
+    href text not null,
+    location text not null default 'header' check (location in ('header','footer')),
+    display_order integer not null default 0,
+    is_visible boolean not null default true,
+    is_external boolean not null default false,
+    created_at timestamptz not null default now()
+);
+create unique index if not exists navigation_items_unique_idx on public.navigation_items(location, label, href);
+alter table public.navigation_items enable row level security;
+drop policy if exists "van_public_read_navigation" on public.navigation_items;
+drop policy if exists "van_admin_manage_navigation" on public.navigation_items;
+create policy "van_public_read_navigation" on public.navigation_items for select using (is_visible = true or public.is_van_admin());
+create policy "van_admin_manage_navigation" on public.navigation_items for all to authenticated using (public.is_van_admin()) with check (public.is_van_admin());
+grant select on public.navigation_items to anon, authenticated;
+grant insert, update, delete on public.navigation_items to authenticated;
+grant usage, select on sequence public.navigation_items_id_seq to authenticated;
+
+insert into public.navigation_items(label,href,location,display_order,is_visible) values
+('Home','index.html','header',0,true),
+('About','about.html','header',10,true),
+('Leadership','leadership.html','header',20,true),
+('Artists','artists.html','header',30,true),
+('Survival','survival.html','header',40,true),
+('News','news.html','header',50,true),
+('Audition','audition.html','header',60,true),
+('VAN Voice','voice.html','header',70,true),
+('Contact','contact.html','header',80,true),
+('About','about.html','footer',10,true),
+('Leadership','leadership.html','footer',20,true),
+('Artists','artists.html','footer',30,true),
+('Survival','survival.html','footer',40,true),
+('News','news.html','footer',50,true),
+('Audition','audition.html','footer',60,true),
+('VAN Voice','voice.html','footer',70,true)
+on conflict do nothing;
+
+create table if not exists public.custom_pages (
+    id bigint generated by default as identity primary key,
+    title text not null,
+    slug text not null unique,
+    eyebrow text,
+    summary text,
+    body_html text not null default '',
+    cover_image text,
+    cover_image_path text,
+    is_published boolean not null default false,
+    created_at timestamptz not null default now(),
+    updated_at timestamptz not null default now()
+);
+alter table public.custom_pages enable row level security;
+drop policy if exists "van_public_read_custom_pages" on public.custom_pages;
+drop policy if exists "van_admin_read_custom_pages" on public.custom_pages;
+drop policy if exists "van_admin_manage_custom_pages" on public.custom_pages;
+create policy "van_public_read_custom_pages" on public.custom_pages for select to anon using (is_published = true);
+create policy "van_admin_read_custom_pages" on public.custom_pages for select to authenticated using (is_published = true or public.is_van_admin());
+create policy "van_admin_manage_custom_pages" on public.custom_pages for all to authenticated using (public.is_van_admin()) with check (public.is_van_admin());
+grant select on public.custom_pages to anon, authenticated;
+grant insert, update, delete on public.custom_pages to authenticated;
+grant usage, select on sequence public.custom_pages_id_seq to authenticated;
+
+-- ---------- LEADERSHIP ----------
+create table if not exists public.leadership_profiles (
+    id bigint generated by default as identity primary key,
+    name text not null,
+    role text not null,
+    division text,
+    bio text,
+    quote text,
+    started_at date,
+    projects text,
+    email text,
+    instagram_url text,
+    profile_image text,
+    profile_image_path text,
+    status text not null default 'Active' check (status in ('Active','Hiatus','Former')),
+    display_order integer not null default 0,
+    is_visible boolean not null default true,
+    created_at timestamptz not null default now(),
+    updated_at timestamptz not null default now()
+);
+alter table public.leadership_profiles enable row level security;
+drop policy if exists "van_public_read_leadership" on public.leadership_profiles;
+drop policy if exists "van_admin_manage_leadership" on public.leadership_profiles;
+create policy "van_public_read_leadership" on public.leadership_profiles for select using (is_visible = true or public.is_van_admin());
+create policy "van_admin_manage_leadership" on public.leadership_profiles for all to authenticated using (public.is_van_admin()) with check (public.is_van_admin());
+grant select on public.leadership_profiles to anon, authenticated;
+grant insert, update, delete on public.leadership_profiles to authenticated;
+grant usage, select on sequence public.leadership_profiles_id_seq to authenticated;
+
+-- ---------- SURVIVAL PROJECTS ----------
+create table if not exists public.survival_projects (
+    id bigint generated by default as identity primary key,
+    name text not null,
+    slug text not null unique,
+    generation_label text,
+    year_label text,
+    description text,
+    status text not null default 'Completed' check (status in ('Planned','Upcoming','Ongoing','Completed','Postponed','Cancelled')),
+    poster_image text,
+    poster_image_path text,
+    detail_url text,
+    display_order integer not null default 0,
+    is_featured boolean not null default false,
+    is_visible boolean not null default true,
+    created_at timestamptz not null default now(),
+    updated_at timestamptz not null default now()
+);
+alter table public.survival_projects enable row level security;
+drop policy if exists "van_public_read_survival" on public.survival_projects;
+drop policy if exists "van_admin_manage_survival" on public.survival_projects;
+create policy "van_public_read_survival" on public.survival_projects for select using (is_visible = true or public.is_van_admin());
+create policy "van_admin_manage_survival" on public.survival_projects for all to authenticated using (public.is_van_admin()) with check (public.is_van_admin());
+grant select on public.survival_projects to anon, authenticated;
+grant insert, update, delete on public.survival_projects to authenticated;
+grant usage, select on sequence public.survival_projects_id_seq to authenticated;
+
+insert into public.survival_projects(name,slug,generation_label,year_label,poster_image,detail_url,display_order,is_featured) values
+('VSTAGE12','vstage12','1st Generation','2024–2025','images/survival/gen 1.png',null,10,false),
+('VPLANET','vplanet','2nd Generation','2025','images/survival/gen 2.png',null,20,false),
+('FAST AUDITION','fast-audition','3rd Generation','2025','images/survival/gen 3.png',null,30,false),
+('V-LAND','v-land','4th Generation','2025','images/survival/gen 4.png',null,40,false),
+('Z-STAGE','z-stage','5th Generation','2025','images/survival/gen 5.png',null,50,false),
+('PRODUCE V','produce-v','6th Generation','2025','images/survival/gen 6.png',null,60,false),
+('V-LAND : II','v-land-ii','7th Generation','2025','images/survival/vland 2.png',null,70,false),
+('V-HERO','v-hero','8th Generation','2026','images/survival/gen 8.jpeg',null,80,false),
+('V-LAND : III — THE RESET','v-land-iii-the-reset','9th Generation','2026','images/survival/gen 9.png','vland.html',90,true)
+on conflict (slug) do nothing;
+
+-- ---------- AUDITIONS ----------
+create table if not exists public.audition_programs (
+    id bigint generated by default as identity primary key,
+    title text not null,
+    slug text not null unique,
+    summary text,
+    requirements text,
+    categories text[] not null default array['Vocal','Rap','Dance','Performance','Songwriting','Production','Design','Other'],
+    opens_at timestamptz,
+    closes_at timestamptz,
+    min_age integer,
+    max_age integer,
+    status text not null default 'Draft' check (status in ('Draft','Scheduled','Open','Closed','Cancelled')),
+    is_published boolean not null default false,
+    created_at timestamptz not null default now(),
+    updated_at timestamptz not null default now()
+);
+alter table public.audition_programs enable row level security;
+drop policy if exists "van_public_read_audition_programs" on public.audition_programs;
+drop policy if exists "van_admin_manage_audition_programs" on public.audition_programs;
+create policy "van_public_read_audition_programs" on public.audition_programs for select using (is_published = true or public.is_van_admin());
+create policy "van_admin_manage_audition_programs" on public.audition_programs for all to authenticated using (public.is_van_admin()) with check (public.is_van_admin());
+grant select on public.audition_programs to anon, authenticated;
+grant insert, update, delete on public.audition_programs to authenticated;
+grant usage, select on sequence public.audition_programs_id_seq to authenticated;
+
+create table if not exists public.audition_applications (
+    id uuid primary key default gen_random_uuid(),
+    registration_code text not null unique default ('VAN-AUD-' || to_char(now(),'YYYY') || '-' || upper(substr(md5(random()::text || clock_timestamp()::text),1,8))),
+    program_id bigint references public.audition_programs(id) on delete set null,
+    full_name text not null,
+    stage_name text,
+    birth_date date not null,
+    country text not null,
+    country_iso2 text,
+    calling_code text not null,
+    whatsapp_number text not null,
+    whatsapp_e164 text not null,
+    email text not null,
+    category text not null,
+    social_handle text,
+    portfolio_url text not null,
+    introduction text,
+    consent boolean not null default false,
+    status text not null default 'New' check (status in ('New','Reviewing','Need Information','Next Stage','Accepted','Rejected','Withdrawn','Closed')),
+    admin_notes text,
+    notification_sent_at timestamptz,
+    created_at timestamptz not null default now(),
+    updated_at timestamptz not null default now()
+);
+alter table public.audition_applications enable row level security;
+drop policy if exists "van_admin_read_audition_applications" on public.audition_applications;
+drop policy if exists "van_admin_update_audition_applications" on public.audition_applications;
+drop policy if exists "van_admin_delete_audition_applications" on public.audition_applications;
+create policy "van_admin_read_audition_applications" on public.audition_applications for select to authenticated using (public.is_van_admin());
+create policy "van_admin_update_audition_applications" on public.audition_applications for update to authenticated using (public.is_van_admin()) with check (public.is_van_admin());
+create policy "van_admin_delete_audition_applications" on public.audition_applications for delete to authenticated using (public.van_admin_role() in ('Founder','Co-Founder','CEO 1','CEO 2','Audition Manager'));
+grant select, update, delete on public.audition_applications to authenticated;
+
+create or replace function public.submit_audition_application(payload jsonb)
+returns table(application_id uuid, registration_code text)
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+    inserted public.audition_applications;
+begin
+    if coalesce(trim(payload->>'full_name'),'') = ''
+       or coalesce(trim(payload->>'email'),'') = ''
+       or coalesce(trim(payload->>'whatsapp_e164'),'') = ''
+       or coalesce(trim(payload->>'portfolio_url'),'') = ''
+       or coalesce((payload->>'consent')::boolean,false) = false then
+        raise exception 'Required audition information is incomplete.';
+    end if;
+
+    insert into public.audition_applications(
+        program_id, full_name, stage_name, birth_date, country, country_iso2,
+        calling_code, whatsapp_number, whatsapp_e164, email, category,
+        social_handle, portfolio_url, introduction, consent
+    ) values (
+        nullif(payload->>'program_id','')::bigint,
+        trim(payload->>'full_name'), nullif(trim(payload->>'stage_name'),''),
+        (payload->>'birth_date')::date, trim(payload->>'country'),
+        nullif(trim(payload->>'country_iso2'),''), trim(payload->>'calling_code'),
+        trim(payload->>'whatsapp_number'), trim(payload->>'whatsapp_e164'),
+        lower(trim(payload->>'email')), trim(payload->>'category'),
+        nullif(trim(payload->>'social_handle'),''), trim(payload->>'portfolio_url'),
+        nullif(trim(payload->>'introduction'),''), true
+    ) returning * into inserted;
+
+    return query select inserted.id, inserted.registration_code;
+end;
+$$;
+revoke all on function public.submit_audition_application(jsonb) from public;
+grant execute on function public.submit_audition_application(jsonb) to anon, authenticated;
+
+-- ---------- VAN VOICE ----------
+create table if not exists public.feedback_tickets (
+    id uuid primary key default gen_random_uuid(),
+    ticket_code text not null unique default ('VAN-VOICE-' || to_char(now(),'YYYY') || '-' || upper(substr(md5(random()::text || clock_timestamp()::text),1,8))),
+    access_pin text not null default lpad((floor(random()*1000000))::int::text,6,'0'),
+    sender_name text,
+    sender_email text,
+    sender_whatsapp text,
+    target_type text not null,
+    target_name text,
+    category text not null,
+    visibility text not null default 'Private' check (visibility in ('Public','Private','Anonymous')),
+    title text not null,
+    message text not null,
+    priority text not null default 'Normal' check (priority in ('Low','Normal','High','Urgent')),
+    status text not null default 'New' check (status in ('New','Reviewing','Need Information','In Progress','Answered','Resolved','Rejected','Closed')),
+    moderation_status text not null default 'Pending' check (moderation_status in ('Pending','Approved','Hidden','Rejected')),
+    official_response text,
+    assigned_to text,
+    internal_notes text,
+    created_at timestamptz not null default now(),
+    updated_at timestamptz not null default now()
+);
+alter table public.feedback_tickets enable row level security;
+drop policy if exists "van_public_read_feedback" on public.feedback_tickets;
+drop policy if exists "van_admin_read_feedback" on public.feedback_tickets;
+drop policy if exists "van_admin_update_feedback" on public.feedback_tickets;
+drop policy if exists "van_admin_delete_feedback" on public.feedback_tickets;
+create policy "van_public_read_feedback" on public.feedback_tickets for select to anon using (visibility in ('Public','Anonymous') and moderation_status = 'Approved');
+create policy "van_admin_read_feedback" on public.feedback_tickets for select to authenticated using (public.is_van_admin() or (visibility in ('Public','Anonymous') and moderation_status = 'Approved'));
+create policy "van_admin_update_feedback" on public.feedback_tickets for update to authenticated using (public.is_van_admin()) with check (public.is_van_admin());
+create policy "van_admin_delete_feedback" on public.feedback_tickets for delete to authenticated using (public.van_admin_role() in ('Founder','Co-Founder','CEO 1','CEO 2','Moderator'));
+grant select on public.feedback_tickets to anon, authenticated;
+grant update, delete on public.feedback_tickets to authenticated;
+
+create or replace function public.submit_van_feedback(payload jsonb)
+returns table(ticket_code text, access_pin text)
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+    inserted public.feedback_tickets;
+begin
+    if coalesce(trim(payload->>'target_type'),'') = ''
+       or coalesce(trim(payload->>'category'),'') = ''
+       or coalesce(trim(payload->>'title'),'') = ''
+       or length(coalesce(trim(payload->>'message'),'')) < 10 then
+        raise exception 'Please complete the required feedback fields.';
+    end if;
+
+    insert into public.feedback_tickets(
+        sender_name, sender_email, sender_whatsapp, target_type, target_name,
+        category, visibility, title, message, priority
+    ) values (
+        nullif(trim(payload->>'sender_name'),''),
+        nullif(lower(trim(payload->>'sender_email')),''),
+        nullif(trim(payload->>'sender_whatsapp'),''),
+        trim(payload->>'target_type'), nullif(trim(payload->>'target_name'),''),
+        trim(payload->>'category'), coalesce(nullif(payload->>'visibility',''),'Private'),
+        trim(payload->>'title'), trim(payload->>'message'),
+        coalesce(nullif(payload->>'priority',''),'Normal')
+    ) returning * into inserted;
+
+    return query select inserted.ticket_code, inserted.access_pin;
+end;
+$$;
+
+create or replace function public.track_van_feedback(p_ticket_code text, p_access_pin text)
+returns table(
+    ticket_code text, title text, target_type text, target_name text, category text,
+    visibility text, status text, moderation_status text, message text,
+    official_response text, created_at timestamptz, updated_at timestamptz
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+    select f.ticket_code, f.title, f.target_type, f.target_name, f.category,
+           f.visibility, f.status, f.moderation_status, f.message,
+           f.official_response, f.created_at, f.updated_at
+    from public.feedback_tickets f
+    where upper(f.ticket_code) = upper(trim(p_ticket_code))
+      and f.access_pin = trim(p_access_pin)
+    limit 1;
+$$;
+
+revoke all on function public.submit_van_feedback(jsonb) from public;
+revoke all on function public.track_van_feedback(text,text) from public;
+grant execute on function public.submit_van_feedback(jsonb), public.track_van_feedback(text,text) to anon, authenticated;
+
+-- ---------- DEFAULT EDITABLE COPY ----------
+insert into public.site_content(content_key,page_name,label,content_value,field_type,display_order) values
+('home.hero.eyebrow','Home','Hero eyebrow','VIRTUAL ENTERTAINMENT AGENCY','text',10),
+('home.hero.title','Home','Hero title','VAN ENTERTAINMENT','text',20),
+('home.hero.motto','Home','Hero motto','Old but Gold','text',30),
+('home.hero.tagline','Home','Hero tagline','Let’s Begin the Journey Together','text',40),
+('home.hero.description','Home','Hero description','Creating timeless artists, music, and unforgettable digital stages.','textarea',50),
+('home.about.eyebrow','Home','About eyebrow','WHO WE ARE','text',60),
+('home.about.title','Home','About title','ABOUT VAN ENTERTAINMENT','text',70),
+('home.about.subtitle','Home','About subtitle','Old but Gold','text',80),
+('home.about.p1','Home','About paragraph 1','VAN ENTERTAINMENT is a virtual entertainment agency dedicated to building digital artists, unforgettable music, and immersive entertainment experiences.','textarea',90),
+('home.about.p2','Home','About paragraph 2','We believe great music never fades. Through creativity, innovation, and storytelling, we create artists who can inspire audiences worldwide.','textarea',100),
+('home.artists.title','Home','Featured artists title','FEATURED ARTISTS','text',110),
+('home.artists.description','Home','Featured artists description','Meet selected artists under VAN ENTERTAINMENT.','textarea',120),
+('home.survival.title','Home','Survival title','SURVIVAL PROJECTS','text',130),
+('home.survival.description','Home','Survival description','Explore the programs that discovered new talent and shaped every generation of VAN artists.','textarea',140),
+('home.news.title','Home','Latest news title','LATEST NEWS','text',150),
+('home.news.description','Home','Latest news description','Stay updated with releases, events, and agency announcements.','textarea',160),
+('home.audition.title','Home','Audition title','GLOBAL AUDITION','text',170),
+('home.audition.description','Home','Audition description','Show your voice, rap, dance, creativity, or production skills and begin a new journey with VAN ENTERTAINMENT.','textarea',180),
+('about.hero.eyebrow','About','Hero eyebrow','OUR STORY','text',10),
+('about.hero.title','About','Hero title','ABOUT VAN','text',20),
+('about.hero.description','About','Hero description','A virtual entertainment agency built around timeless music, strong identities, and meaningful creative journeys.','textarea',30),
+('about.story.title','About','Story title','Music That Stays','text',40),
+('about.story.p1','About','Story paragraph 1','VAN ENTERTAINMENT develops virtual artists through music, storytelling, performance, and community. Every artist is designed to have a clear identity and a journey audiences can follow.','textarea',50),
+('about.story.p2','About','Story paragraph 2','Our motto, Old but Gold, reflects our belief that strong concepts and memorable music can remain meaningful long after a trend ends.','textarea',60),
+('artists.hero.title','Artists','Hero title','OUR ARTISTS','text',10),
+('artists.hero.description','Artists','Hero description','Meet the virtual artists growing, creating, and performing under VAN ENTERTAINMENT.','textarea',20),
+('survival.hero.title','Survival','Hero title','SURVIVAL PROJECTS','text',10),
+('survival.hero.description','Survival','Hero description','Explore every program created by VAN ENTERTAINMENT to discover and develop new virtual talent.','textarea',20),
+('news.hero.title','News','Hero title','LATEST NEWS','text',10),
+('news.hero.description','News','Hero description','Official announcements, artist updates, releases, and events from VAN ENTERTAINMENT.','textarea',20),
+('audition.hero.eyebrow','Audition','Hero eyebrow','GLOBAL AUDITION','text',10),
+('audition.hero.title','Audition','Hero title','YOUR STAGE STARTS HERE','text',20),
+('audition.hero.description','Audition','Hero description','Vocal, rap, dance, performance, songwriting, production, design, and other creative talents are welcome.','textarea',30),
+('audition.form.title','Audition','Application form title','SUBMIT YOUR AUDITION','text',40),
+('audition.form.description','Audition','Application form description','Choose an active audition and send your strongest material. VAN may contact selected applicants through WhatsApp or email.','textarea',50),
+('leadership.hero.title','Leadership','Hero title','VAN LEADERSHIP','text',10),
+('leadership.hero.description','Leadership','Hero description','Meet the people responsible for guiding VAN ENTERTAINMENT, its artists, and its creative projects.','textarea',20),
+('voice.hero.title','VAN Voice','Hero title','VAN VOICE','text',10),
+('voice.hero.description','VAN Voice','Hero description','A safe place to share suggestions, concerns, appreciation, and reports for VAN ENTERTAINMENT.','textarea',20),
+('voice.form.notice','VAN Voice','Submission notice','Public and anonymous posts are reviewed before appearing. Private messages can only be viewed by VAN staff.','textarea',30),
+('contact.hero.title','Contact','Hero title','CONTACT VAN','text',10),
+('contact.hero.description','Contact','Hero description','Connect with VAN ENTERTAINMENT through our official channels.','textarea',20),
+('global.footer.motto','Global','Footer motto','Old but Gold','text',10),
+('global.footer.copyright','Global','Copyright','© 2026 VAN ENTERTAINMENT. All Rights Reserved.','text',20)
+on conflict (content_key) do nothing;
+
+-- Keep updated_at current on editable tables.
+create or replace function public.van_set_updated_at()
+returns trigger language plpgsql as $$
+begin
+    new.updated_at = now();
+    return new;
+end;
+$$;
+
+do $$
+declare
+    table_name text;
+begin
+    foreach table_name in array array[
+        'admin_users','site_content','site_settings','custom_pages','leadership_profiles',
+        'survival_projects','audition_programs','audition_applications','feedback_tickets'
+    ] loop
+        execute format('drop trigger if exists van_set_updated_at on public.%I', table_name);
+        execute format('create trigger van_set_updated_at before update on public.%I for each row execute function public.van_set_updated_at()', table_name);
+    end loop;
+end $$;
+
+-- Sanitized public view for VAN Voice. Anonymous sender details are never exposed.
+revoke select on public.feedback_tickets from anon;
+drop view if exists public.public_feedback_posts;
+create view public.public_feedback_posts as
+select
+    id, ticket_code, target_type, target_name, category, visibility, title, message,
+    priority, status, official_response, created_at, updated_at,
+    case when visibility = 'Anonymous' then 'Anonymous' else coalesce(sender_name,'VAN Community Member') end as display_name
+from public.feedback_tickets
+where visibility in ('Public','Anonymous') and moderation_status = 'Approved';
+grant select on public.public_feedback_posts to anon, authenticated;
+
+-- Active-account and module-aware authorization helpers.
+create or replace function public.is_van_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+    select exists (
+        select 1 from public.admin_users
+        where user_id = auth.uid() and is_active = true
+    );
+$$;
+
+create or replace function public.van_can_manage(area text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+    select case
+        when public.van_admin_role() in ('Founder','Co-Founder','CEO 1','CEO 2','Co-CEO 1','Co-CEO 2','Manager') then true
+        when public.van_admin_role() = 'Artist Manager' and area in ('artists','members','albums','videos') then true
+        when public.van_admin_role() = 'Survival Manager' and area = 'survival' then true
+        when public.van_admin_role() = 'Audition Manager' and area in ('auditions','applications') then true
+        when public.van_admin_role() = 'Judge' and area = 'applications' then true
+        when public.van_admin_role() = 'Editor' and area in ('news','content','theme','navigation','pages','leadership') then true
+        when public.van_admin_role() = 'Moderator' and area = 'voice' then true
+        else false
+    end;
+$$;
+
+revoke all on function public.van_can_manage(text) from public;
+grant execute on function public.van_can_manage(text) to authenticated;
+
+-- Replace broad write policies with role-aware policies.
+drop policy if exists "van_admin_insert_artists" on public.artists;
+drop policy if exists "van_admin_update_artists" on public.artists;
+drop policy if exists "van_admin_delete_artists" on public.artists;
+create policy "van_admin_insert_artists" on public.artists for insert to authenticated with check (public.van_can_manage('artists'));
+create policy "van_admin_update_artists" on public.artists for update to authenticated using (public.van_can_manage('artists')) with check (public.van_can_manage('artists'));
+create policy "van_admin_delete_artists" on public.artists for delete to authenticated using (public.van_can_manage('artists'));
+
+do $$
+declare table_name text; area_name text;
+begin
+    foreach table_name in array array['members','albums','music_videos'] loop
+        area_name := case table_name when 'music_videos' then 'videos' else table_name end;
+        execute format('drop policy if exists %I on public.%I', 'van_admin_insert_' || table_name, table_name);
+        execute format('drop policy if exists %I on public.%I', 'van_admin_update_' || table_name, table_name);
+        execute format('drop policy if exists %I on public.%I', 'van_admin_delete_' || table_name, table_name);
+        execute format('create policy %I on public.%I for insert to authenticated with check (public.van_can_manage(%L))', 'van_admin_insert_' || table_name, table_name, area_name);
+        execute format('create policy %I on public.%I for update to authenticated using (public.van_can_manage(%L)) with check (public.van_can_manage(%L))', 'van_admin_update_' || table_name, table_name, area_name, area_name);
+        execute format('create policy %I on public.%I for delete to authenticated using (public.van_can_manage(%L))', 'van_admin_delete_' || table_name, table_name, area_name);
+    end loop;
+end $$;
+
+drop policy if exists "van_admin_insert_news" on public.news;
+drop policy if exists "van_admin_update_news" on public.news;
+drop policy if exists "van_admin_delete_news" on public.news;
+create policy "van_admin_insert_news" on public.news for insert to authenticated with check (public.van_can_manage('news'));
+create policy "van_admin_update_news" on public.news for update to authenticated using (public.van_can_manage('news')) with check (public.van_can_manage('news'));
+create policy "van_admin_delete_news" on public.news for delete to authenticated using (public.van_can_manage('news'));
+
+-- Extended tables.
+drop policy if exists "van_admin_manage_site_content" on public.site_content;
+create policy "van_admin_manage_site_content" on public.site_content for all to authenticated using (public.van_can_manage('content')) with check (public.van_can_manage('content'));
+drop policy if exists "van_admin_manage_site_settings" on public.site_settings;
+create policy "van_admin_manage_site_settings" on public.site_settings for all to authenticated using (public.van_can_manage('theme')) with check (public.van_can_manage('theme'));
+drop policy if exists "van_admin_manage_navigation" on public.navigation_items;
+create policy "van_admin_manage_navigation" on public.navigation_items for all to authenticated using (public.van_can_manage('navigation')) with check (public.van_can_manage('navigation'));
+drop policy if exists "van_admin_manage_custom_pages" on public.custom_pages;
+create policy "van_admin_manage_custom_pages" on public.custom_pages for all to authenticated using (public.van_can_manage('pages')) with check (public.van_can_manage('pages'));
+drop policy if exists "van_admin_manage_leadership" on public.leadership_profiles;
+create policy "van_admin_manage_leadership" on public.leadership_profiles for all to authenticated using (public.van_can_manage('leadership')) with check (public.van_can_manage('leadership'));
+drop policy if exists "van_admin_manage_survival" on public.survival_projects;
+create policy "van_admin_manage_survival" on public.survival_projects for all to authenticated using (public.van_can_manage('survival')) with check (public.van_can_manage('survival'));
+drop policy if exists "van_admin_manage_audition_programs" on public.audition_programs;
+create policy "van_admin_manage_audition_programs" on public.audition_programs for all to authenticated using (public.van_can_manage('auditions')) with check (public.van_can_manage('auditions'));
+drop policy if exists "van_admin_update_audition_applications" on public.audition_applications;
+create policy "van_admin_update_audition_applications" on public.audition_applications for update to authenticated using (public.van_can_manage('applications')) with check (public.van_can_manage('applications'));
+drop policy if exists "van_admin_update_feedback" on public.feedback_tickets;
+create policy "van_admin_update_feedback" on public.feedback_tickets for update to authenticated using (public.van_can_manage('voice')) with check (public.van_can_manage('voice'));
+
+-- Final sensitive-data and role-management restrictions.
+drop policy if exists "van_executive_insert_admin_users" on public.admin_users;
+drop policy if exists "van_executive_update_admin_users" on public.admin_users;
+drop policy if exists "van_founder_insert_admin_users" on public.admin_users;
+drop policy if exists "van_founder_update_admin_users" on public.admin_users;
+create policy "van_founder_insert_admin_users" on public.admin_users
+for insert to authenticated
+with check (public.van_admin_role() in ('Founder','Co-Founder'));
+create policy "van_founder_update_admin_users" on public.admin_users
+for update to authenticated
+using (public.van_admin_role() in ('Founder','Co-Founder'))
+with check (public.van_admin_role() in ('Founder','Co-Founder'));
+
+drop policy if exists "van_admin_read_audition_applications" on public.audition_applications;
+drop policy if exists "van_admin_delete_audition_applications" on public.audition_applications;
+create policy "van_admin_read_audition_applications" on public.audition_applications
+for select to authenticated using (public.van_can_manage('applications'));
+create policy "van_admin_delete_audition_applications" on public.audition_applications
+for delete to authenticated using (
+    public.van_admin_role() in ('Founder','Co-Founder','CEO 1','CEO 2','Co-CEO 1','Co-CEO 2','Manager','Audition Manager')
+);
+
+drop policy if exists "van_admin_read_feedback" on public.feedback_tickets;
+drop policy if exists "van_admin_delete_feedback" on public.feedback_tickets;
+create policy "van_admin_read_feedback" on public.feedback_tickets
+for select to authenticated using (public.van_can_manage('voice'));
+create policy "van_admin_delete_feedback" on public.feedback_tickets
+for delete to authenticated using (
+    public.van_admin_role() in ('Founder','Co-Founder','CEO 1','CEO 2','Co-CEO 1','Co-CEO 2','Manager','Moderator')
+);

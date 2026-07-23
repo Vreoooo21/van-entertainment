@@ -43,23 +43,99 @@ async function protectDashboard() {
         return false;
     }
 
+    const { data: profile, error: profileError } = await supabase
+        .from("admin_users")
+        .select("user_id,display_name,role,is_active")
+        .eq("user_id", data.session.user.id)
+        .maybeSingle();
+
+    if (profileError || !profile?.is_active) {
+        await supabase.auth.signOut({ scope: "local" });
+        window.alert("This account does not have access to VAN CMS.");
+        window.location.replace("admin-login.html");
+        return false;
+    }
+
+    window.vanAdminProfile = {
+        ...profile,
+        email: data.session.user.email || ""
+    };
+
     const ownerEmail = byId("ownerEmail");
-    if (ownerEmail) ownerEmail.textContent = data.session.user.email || "Owner";
+    if (ownerEmail) ownerEmail.textContent = profile.display_name || data.session.user.email || profile.role;
+    const roleLabel = byId("adminRoleLabel");
+    if (roleLabel) roleLabel.textContent = profile.role;
     return true;
 }
 
-function activatePanel(panelName) {
+const ADMIN_TAB_STORAGE_KEY = "vanCmsActiveTab";
+const DEFAULT_ADMIN_TAB = "artists";
+
+function adminPanelExists(panelName) {
+    if (!panelName) return false;
+
+    return Boolean(
+        document.querySelector(`[data-admin-tab="${panelName}"]`) &&
+        document.getElementById(`panel-${panelName}`)
+    );
+}
+
+function getInitialAdminPanel() {
+    const hashPanel = window.location.hash
+        .replace(/^#/, "")
+        .replace(/^panel-/, "")
+        .trim();
+
+    if (adminPanelExists(hashPanel)) return hashPanel;
+
+    const savedPanel = window.localStorage.getItem(ADMIN_TAB_STORAGE_KEY);
+    if (adminPanelExists(savedPanel)) return savedPanel;
+
+    return DEFAULT_ADMIN_TAB;
+}
+
+function activatePanel(panelName, persist = true) {
+    const nextPanel = adminPanelExists(panelName)
+        ? panelName
+        : DEFAULT_ADMIN_TAB;
+
     document.querySelectorAll("[data-admin-tab]").forEach((button) => {
-        button.classList.toggle("active", button.dataset.adminTab === panelName);
+        button.classList.toggle("active", button.dataset.adminTab === nextPanel);
     });
 
     document.querySelectorAll(".admin-panel").forEach((panel) => {
-        panel.hidden = panel.id !== `panel-${panelName}`;
+        panel.hidden = panel.id !== `panel-${nextPanel}`;
     });
+
+    if (persist) {
+        window.localStorage.setItem(ADMIN_TAB_STORAGE_KEY, nextPanel);
+
+        const nextHash = `#${nextPanel}`;
+        if (window.location.hash !== nextHash) {
+            window.history.replaceState(
+                null,
+                "",
+                `${window.location.pathname}${window.location.search}${nextHash}`
+            );
+        }
+    }
 }
 
 document.querySelectorAll("[data-admin-tab]").forEach((button) => {
-    button.addEventListener("click", () => activatePanel(button.dataset.adminTab));
+    button.addEventListener("click", () => {
+        activatePanel(button.dataset.adminTab);
+    });
+});
+
+window.addEventListener("hashchange", () => {
+    const requestedPanel = window.location.hash
+        .replace(/^#/, "")
+        .replace(/^panel-/, "")
+        .trim();
+
+    if (adminPanelExists(requestedPanel)) {
+        activatePanel(requestedPanel, false);
+    }
 });
 
 function artistOptions(selectedId = "") {
@@ -906,7 +982,7 @@ byId("logoutBtn").addEventListener("click", async () => {
 
 const authorized = await protectDashboard();
 if (authorized) {
-    activatePanel("artists");
+    activatePanel(getInitialAdminPanel());
     resetNewsForm();
     await loadArtists();
     await Promise.all([loadMembers(), loadAlbums(), loadVideos(), loadNews()]);

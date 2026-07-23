@@ -9,3 +9,14 @@
 .nav-links a::after{content:"";position:absolute;left:0;right:100%;bottom:-9px;height:1px;background:#fff;transition:.25s ease}
 .nav-links a:hover::after,.nav-links a.active::after{right:0}
 .menu-icon{display:none;background:none;border:0;font-size:2rem;line-height:1;cursor:pointer}
+
+@media (max-width:1180px){
+  .site-nav{height:72px}
+  .logo img{width:48px;height:48px}
+  .menu-icon{display:block;position:relative;z-index:2}
+  .nav-links{position:fixed;top:72px;left:0;right:0;max-height:calc(100vh - 72px);overflow:auto;padding:26px 24px 34px;display:flex;flex-direction:column;align-items:stretch;gap:5px;background:rgba(12,12,14,.98);border-bottom:1px solid var(--line);transform:translateY(-120%);opacity:0;visibility:hidden;transition:.3s ease}
+  .nav-links.active{transform:none;opacity:1;visibility:visible}
+  .nav-links li{width:100%}
+  .nav-links a{display:block;padding:13px 5px;font-size:1rem}
+  .nav-links a::after{display:none}
+}

@@ -5,11 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VAN CMS | Owner Dashboard</title>
     <link rel="icon" type="image/png" href="images/favicon.png">
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#111114">
+    <link rel="apple-touch-icon" href="images/app-icons/icon-192.png">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/admin.css">
 </head>
 <body class="admin-page">
-    <aside class="admin-sidebar">
+    <button class="admin-mobile-toggle" id="adminMobileToggle" type="button" aria-label="Open dashboard menu" aria-controls="adminSidebar" aria-expanded="false">
+        <span></span><span></span><span></span>
+    </button>
+    <div class="admin-sidebar-overlay" id="adminSidebarOverlay" hidden></div>
+    <aside class="admin-sidebar" id="adminSidebar" aria-label="Dashboard navigation">
+        <button class="admin-sidebar-close" id="adminSidebarClose" type="button" aria-label="Close dashboard menu">×</button>
         <a class="admin-brand" href="index.html" target="_blank" rel="noopener">
             <img src="images/banner 1.png" alt="VAN Entertainment">
             <div>
@@ -24,6 +32,17 @@
             <button type="button" data-admin-tab="albums">Albums</button>
             <button type="button" data-admin-tab="videos">Music Videos</button>
             <button type="button" data-admin-tab="news">News</button>
+            <button type="button" data-admin-tab="content">Site Text</button>
+            <button type="button" data-admin-tab="theme">Theme</button>
+            <button type="button" data-admin-tab="navigation">Navigation</button>
+            <button type="button" data-admin-tab="pages">Custom Pages</button>
+            <button type="button" data-admin-tab="leadership">Leadership</button>
+            <button type="button" data-admin-tab="survival">Survival</button>
+            <button type="button" data-admin-tab="auditions">Audition Programs</button>
+            <button type="button" data-admin-tab="applications">Applications <span class="menu-count-badge" id="applicationsBadge" hidden>0</span></button>
+            <button type="button" data-admin-tab="notifications">Notifications</button>
+            <button type="button" data-admin-tab="voice">VAN Voice</button>
+            <button type="button" data-admin-tab="roles" id="rolesTabButton">Admin Roles</button>
         </nav>
 
         <div class="admin-sidebar-footer">
@@ -38,7 +57,10 @@
                 <p>Owner Dashboard</p>
                 <h1>Content Management</h1>
             </div>
-            <span class="admin-security-label">Authenticated session</span>
+            <div class="admin-topbar-actions">
+                <button class="secondary-btn install-pwa-btn" id="installPwaBtn" type="button" hidden>Install VAN CMS</button>
+                <span class="admin-security-label" id="adminRoleLabel">Authenticated session</span>
+            </div>
         </header>
 
         <section class="admin-panel" id="panel-artists">
@@ -207,8 +229,140 @@
             <p class="loading-message" id="newsLoading">Loading news...</p>
             <div class="admin-grid" id="newsListAdmin"></div>
         </section>
+        <section class="admin-panel" id="panel-content" hidden>
+            <div class="panel-heading"><div><p>Website Copy</p><h2>Edit Website Content</h2></div><button class="primary-btn" type="button" id="saveSiteContentBtn">Save All Changes</button></div>
+            <p class="panel-help">Change the main words shown across VAN ENTERTAINMENT without opening HTML. Navigation menu names remain in Navigation Manager, while artist and leadership data remain in their own menus.</p>
+            <div class="content-editor-toolbar">
+                <label>Search text<input id="siteContentSearch" type="search" placeholder="Search Old but Gold, hero, footer..."></label>
+                <label>Page<select id="siteContentPageFilter"><option value="">All pages</option></select></label>
+                <button class="secondary-btn" type="button" id="reloadSiteContentBtn">Reload</button>
+            </div>
+            <div id="siteContentEditor" class="content-editor-grid"><p class="loading-message">Loading editable text...</p></div>
+            <p class="form-message" id="siteContentMessage" aria-live="polite"></p>
+        </section>
+
+        <section class="admin-panel" id="panel-theme" hidden>
+            <div class="panel-heading"><div><p>Brand Appearance</p><h2>Theme Manager</h2></div></div>
+            <section class="admin-form-section"><form id="themeForm" class="admin-form">
+                <div class="form-grid two-columns">
+                    <label>Primary Color<input type="color" id="themePrimary"></label><label>Accent Color<input type="color" id="themeAccent"></label>
+                    <label>Background Color<input type="color" id="themeBackground"></label><label>Surface Color<input type="color" id="themeSurface"></label>
+                    <label>Text Color<input type="color" id="themeText"></label><label>Muted Text Color<input type="color" id="themeMuted"></label>
+                    <label>Heading Font<select id="themeHeadingFont"><option>Cinzel</option><option>Poppins</option><option>Georgia</option></select></label>
+                    <label>Body Font<select id="themeBodyFont"><option>Poppins</option><option>Arial</option><option>Georgia</option></select></label>
+                </div>
+                <label class="checkbox-row"><input type="checkbox" id="themeMaintenance"> Enable maintenance banner</label>
+                <label>Maintenance Message<textarea id="themeMaintenanceMessage" rows="3"></textarea></label>
+                <label>Admin WhatsApp Display Number<input id="themeAdminWhatsapp" placeholder="+62812..."><small>This is only a dashboard reference. WhatsApp API secrets stay in Supabase secrets.</small></label>
+                <div class="form-actions"><button class="primary-btn" type="submit">Save Theme</button></div><p class="form-message" id="themeMessage"></p>
+            </form></section>
+        </section>
+
+        <section class="admin-panel" id="panel-navigation" hidden>
+            <div class="panel-heading"><div><p>Menu Builder</p><h2>Navigation Manager</h2></div><button class="primary-btn" type="button" id="addNavigationBtn">+ Add Menu Item</button></div>
+            <section class="admin-form-section" id="navigationFormSection" hidden><form id="navigationForm" class="admin-form">
+                <div class="form-grid two-columns"><label>Label<input id="navigationLabel" required></label><label>URL<input id="navigationHref" required placeholder="page.html?slug=example"></label><label>Location<select id="navigationLocation"><option value="header">Header</option><option value="footer">Footer</option></select></label><label>Display Order<input type="number" id="navigationOrder" value="0"></label></div>
+                <label class="checkbox-row"><input type="checkbox" id="navigationVisible" checked> Visible</label><label class="checkbox-row"><input type="checkbox" id="navigationExternal"> Open as external link</label>
+                <div class="form-actions"><button class="primary-btn" type="submit">Save Menu Item</button><button class="ghost-btn" type="button" id="cancelNavigationBtn">Cancel</button></div><p class="form-message" id="navigationMessage"></p>
+            </form></section><div id="navigationList" class="admin-list"></div>
+        </section>
+
+        <section class="admin-panel" id="panel-pages" hidden>
+            <div class="panel-heading"><div><p>Page Builder</p><h2>Custom Pages</h2></div><button class="primary-btn" type="button" id="addPageBtn">+ Add Page</button></div>
+            <section class="admin-form-section" id="pageFormSection" hidden><form id="pageForm" class="admin-form">
+                <div class="form-grid two-columns"><label>Page Title<input id="pageTitle" required></label><label>Slug<input id="pageSlug" required></label><label>Eyebrow<input id="pageEyebrow"></label><label>Cover Image<input type="file" id="pageImageFile" accept="image/png,image/jpeg,image/webp"></label></div>
+                <label>Summary<textarea id="pageSummary" rows="3"></textarea></label><label>Page Content (HTML allowed)<textarea id="pageBody" rows="14" required placeholder="&lt;h2&gt;Section title&lt;/h2&gt;&#10;&lt;p&gt;Page content...&lt;/p&gt;"></textarea></label>
+                <label class="checkbox-row"><input type="checkbox" id="pagePublished"> Publish page</label>
+                <div class="form-actions"><button class="primary-btn" type="submit">Save Page</button><button class="ghost-btn" type="button" id="cancelPageBtn">Cancel</button></div><p class="form-message" id="pageMessage"></p>
+            </form></section><div id="pageList" class="admin-grid"></div>
+        </section>
+
+        <section class="admin-panel" id="panel-leadership" hidden>
+            <div class="panel-heading"><div><p>Executive Profiles</p><h2>VAN Leadership</h2></div><button class="primary-btn" type="button" id="addLeadershipBtn">+ Add Profile</button></div>
+            <section class="admin-form-section" id="leadershipFormSection" hidden><form id="leadershipForm" class="admin-form">
+                <div class="form-grid two-columns"><label>Name<input id="leadershipName" required></label><label>Role<select id="leadershipRole" required><option>Founder</option><option>Co-Founder</option><option>CEO 1</option><option>CEO 2</option><option>Co-CEO 1</option><option>Co-CEO 2</option><option>Manager</option></select></label><label>Division<input id="leadershipDivision"></label><label>Start Date<input type="date" id="leadershipStarted"></label><label>Status<select id="leadershipStatus"><option>Active</option><option>Hiatus</option><option>Former</option></select></label><label>Display Order<input type="number" id="leadershipOrder" value="0"></label><label>Email<input type="email" id="leadershipEmail"></label><label>Instagram / Profile URL<input type="url" id="leadershipInstagram"></label><label>Profile Image<input type="file" id="leadershipImageFile" accept="image/png,image/jpeg,image/webp"></label></div>
+                <label>Bio<textarea id="leadershipBio" rows="5"></textarea></label><label>Quote<textarea id="leadershipQuote" rows="3"></textarea></label><label>Projects / Responsibilities<textarea id="leadershipProjects" rows="4"></textarea></label>
+                <label class="checkbox-row"><input type="checkbox" id="leadershipVisible" checked> Show publicly</label>
+                <div class="form-actions"><button class="primary-btn" type="submit">Save Profile</button><button class="ghost-btn" type="button" id="cancelLeadershipBtn">Cancel</button></div><p class="form-message" id="leadershipMessage"></p>
+            </form></section><div id="leadershipAdminList" class="admin-grid"></div>
+        </section>
+
+        <section class="admin-panel" id="panel-survival" hidden>
+            <div class="panel-heading"><div><p>Project Archive</p><h2>Survival Shows</h2></div><button class="primary-btn" type="button" id="addSurvivalBtn">+ Add Project</button></div>
+            <section class="admin-form-section" id="survivalFormSection" hidden><form id="survivalForm" class="admin-form">
+                <div class="form-grid two-columns"><label>Name<input id="survivalName" required></label><label>Slug<input id="survivalSlug" required></label><label>Generation Label<input id="survivalGeneration"></label><label>Year / Period<input id="survivalYear"></label><label>Status<select id="survivalStatus"><option>Planned</option><option>Upcoming</option><option>Ongoing</option><option selected>Completed</option><option>Postponed</option><option>Cancelled</option></select></label><label>Display Order<input type="number" id="survivalOrder" value="0"></label><label>Custom Detail URL (optional)<input id="survivalDetailUrl" placeholder="Leave empty for automatic detail page"></label><label>Poster Image<input type="file" id="survivalImageFile" accept="image/png,image/jpeg,image/webp"></label></div>
+                <label>Description<textarea id="survivalDescription" rows="4"></textarea></label><label class="checkbox-row"><input type="checkbox" id="survivalFeatured"> Featured project</label><label class="checkbox-row"><input type="checkbox" id="survivalVisible" checked> Show publicly</label>
+                <div class="form-actions"><button class="primary-btn" type="submit">Save Project</button><button class="ghost-btn" type="button" id="cancelSurvivalBtn">Cancel</button></div><p class="form-message" id="survivalMessage"></p>
+            </form></section><div id="survivalAdminList" class="admin-grid"></div>
+        </section>
+
+        <section class="admin-panel" id="panel-auditions" hidden>
+            <div class="panel-heading"><div><p>Audition Batches</p><h2>Audition Programs</h2></div><button class="primary-btn" type="button" id="addAuditionProgramBtn">+ Add Program</button></div>
+            <section class="admin-form-section" id="auditionProgramFormSection" hidden><form id="auditionProgramForm" class="admin-form">
+                <div class="form-grid two-columns"><label>Program Title<input id="auditionProgramTitle" required></label><label>Slug<input id="auditionProgramSlug" required></label><label>Opens At<input type="datetime-local" id="auditionProgramOpens"></label><label>Closes At<input type="datetime-local" id="auditionProgramCloses"></label><label>Minimum Age<input type="number" id="auditionMinAge" min="0"></label><label>Maximum Age<input type="number" id="auditionMaxAge" min="0"></label><label>Status<select id="auditionProgramStatus"><option>Draft</option><option>Scheduled</option><option>Open</option><option>Closed</option><option>Cancelled</option></select></label><label>Categories (comma separated)<input id="auditionProgramCategories" value="Vocal, Rap, Dance, Performance, Songwriting, Production, Design, Other"></label></div>
+                <label>Summary<textarea id="auditionProgramSummary" rows="3"></textarea></label><label>Requirements<textarea id="auditionProgramRequirements" rows="5"></textarea></label><label class="checkbox-row"><input type="checkbox" id="auditionProgramPublished"> Publish program</label>
+                <div class="form-actions"><button class="primary-btn" type="submit">Save Program</button><button class="ghost-btn" type="button" id="cancelAuditionProgramBtn">Cancel</button></div><p class="form-message" id="auditionProgramMessage"></p>
+            </form></section><div id="auditionProgramList" class="admin-list"></div>
+        </section>
+
+        <section class="admin-panel" id="panel-applications" hidden>
+            <div class="panel-heading"><div><p>Candidate Inbox</p><h2>Audition Applications</h2></div><button class="secondary-btn" type="button" id="exportApplicationsBtn">Export CSV</button></div>
+            <div class="admin-filter-row"><input id="applicationSearch" placeholder="Search name, code, category, or WhatsApp"><select id="applicationStatusFilter"><option value="">All statuses</option><option>New</option><option>Reviewing</option><option>Need Information</option><option>Next Stage</option><option>Accepted</option><option>Rejected</option><option>Withdrawn</option><option>Closed</option></select></div>
+            <div id="applicationList" class="admin-list"></div>
+        </section>
+
+        <section class="admin-panel" id="panel-notifications" hidden>
+            <div class="panel-heading">
+                <div>
+                    <p>Mobile App & Alerts</p>
+                    <h2>Notifications</h2>
+                </div>
+                <button class="secondary-btn" type="button" id="refreshPushDevicesBtn">Refresh Devices</button>
+            </div>
+
+            <section class="admin-form-section notification-setup-card">
+                <div class="form-heading">
+                    <h3>Push Notification on This Device</h3>
+                    <p>Install VAN CMS and activate notifications to receive alerts when a new audition application arrives.</p>
+                </div>
+                <p class="panel-help" id="pushStatus" data-type="info">Checking notification configuration...</p>
+                <div class="notification-actions">
+                    <button class="primary-btn" type="button" id="enablePushBtn">Enable Notifications</button>
+                    <button class="secondary-btn" type="button" id="testPushBtn">Test Notification</button>
+                    <button class="ghost-btn" type="button" id="disablePushBtn">Disable on This Device</button>
+                </div>
+            </section>
+
+            <div class="panel-heading compact-heading">
+                <div>
+                    <p>Registered Devices</p>
+                    <h3>Admin Phones & Browsers</h3>
+                </div>
+            </div>
+            <div id="pushDeviceList" class="admin-list">
+                <p class="admin-empty">Loading registered devices...</p>
+            </div>
+        </section>
+
+        <section class="admin-panel" id="panel-voice" hidden>
+            <div class="panel-heading"><div><p>Feedback & Reports</p><h2>VAN Voice Moderation</h2></div><button class="secondary-btn" type="button" id="exportVoiceBtn">Export CSV</button></div>
+            <div class="admin-filter-row"><input id="voiceAdminSearch" placeholder="Search ticket, title, target, or sender"><select id="voiceAdminStatus"><option value="">All statuses</option><option>New</option><option>Reviewing</option><option>Need Information</option><option>In Progress</option><option>Answered</option><option>Resolved</option><option>Rejected</option><option>Closed</option></select></div>
+            <div id="voiceAdminList" class="admin-list"></div>
+        </section>
+
+        <section class="admin-panel" id="panel-roles" hidden>
+            <div class="panel-heading"><div><p>Access Control</p><h2>Admin Roles</h2></div><button class="primary-btn" type="button" id="addAdminRoleBtn">+ Add Admin</button></div>
+            <p class="panel-help">Create the user first in Supabase Authentication, then copy their User UUID here. Only executive roles can manage this list.</p>
+            <section class="admin-form-section" id="adminRoleFormSection" hidden><form id="adminRoleForm" class="admin-form"><div class="form-grid two-columns"><label>User UUID<input id="adminRoleUserId" required placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></label><label>Display Name<input id="adminRoleDisplayName"></label><label>Role<select id="adminRoleRole"><option>Founder</option><option>Co-Founder</option><option>CEO 1</option><option>CEO 2</option><option>Co-CEO 1</option><option>Co-CEO 2</option><option>Manager</option><option>Artist Manager</option><option>Survival Manager</option><option>Audition Manager</option><option>Judge</option><option>Editor</option><option>Moderator</option><option>Viewer</option></select></label><label class="checkbox-row"><input type="checkbox" id="adminRoleActive" checked> Active account</label></div><div class="form-actions"><button class="primary-btn" type="submit">Save Admin</button><button class="ghost-btn" type="button" id="cancelAdminRoleBtn">Cancel</button></div><p class="form-message" id="adminRoleMessage"></p></form></section><div id="adminRoleList" class="admin-list"></div>
+        </section>
+
     </main>
 
+    <script src="js/firebase-config.js"></script>
     <script type="module" src="js/admin.js"></script>
+    <script type="module" src="js/admin-extended.js"></script>
+    <script type="module" src="js/admin-push.js"></script>
+    <script src="js/admin-mobile.js"></script>
+    <script src="js/pwa.js"></script>
 </body>
 </html>

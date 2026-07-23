@@ -27,3 +27,6 @@
 .album-card a,.video-card a{display:inline-block;margin-top:18px;color:#fff;text-decoration:none;font-weight:600}
 .video-card iframe{width:100%;aspect-ratio:16/9;border:0;background:#000}
 .video-card img{height:auto;aspect-ratio:16/9}
+
+.member-birthday{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:.86rem;color:var(--muted)}
+.member-birthday b{color:var(--silver);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}.member-birthday span{text-align:right}

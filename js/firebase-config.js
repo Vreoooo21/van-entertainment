@@ -1,0 +1,12 @@
+(function (root) {
+  root.VAN_FIREBASE_CONFIG = {
+    apiKey: "PASTE_FIREBASE_API_KEY",
+    authDomain: "PASTE_PROJECT_ID.firebaseapp.com",
+    projectId: "PASTE_PROJECT_ID",
+    storageBucket: "PASTE_PROJECT_ID.firebasestorage.app",
+    messagingSenderId: "PASTE_MESSAGING_SENDER_ID",
+    appId: "PASTE_FIREBASE_APP_ID"
+  };
+
+  root.VAN_FIREBASE_VAPID_KEY = "PASTE_PUBLIC_VAPID_KEY";
+})(typeof self !== "undefined" ? self : window);
