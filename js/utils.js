@@ -88,20 +88,37 @@ export function youtubeEmbedUrl(value = "") {
     return id ? `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}` : "";
 }
 
-export function compareArtistsByDebutDate(first, second) {
-    const firstDate = first?.debut_date ? Date.parse(`${first.debut_date}T00:00:00`) : Number.POSITIVE_INFINITY;
-    const secondDate = second?.debut_date ? Date.parse(`${second.debut_date}T00:00:00`) : Number.POSITIVE_INFINITY;
+function comparableDate(value) {
+    if (!value) return Number.POSITIVE_INFINITY;
 
-    const safeFirstDate = Number.isNaN(firstDate) ? Number.POSITIVE_INFINITY : firstDate;
-    const safeSecondDate = Number.isNaN(secondDate) ? Number.POSITIVE_INFINITY : secondDate;
+    const timestamp = Date.parse(`${value}T00:00:00`);
+    return Number.isNaN(timestamp) ? Number.POSITIVE_INFINITY : timestamp;
+}
 
-    if (safeFirstDate !== safeSecondDate) {
-        return safeFirstDate - safeSecondDate;
-    }
-
-    return String(first?.name || "").localeCompare(String(second?.name || ""), "en", {
+function compareText(first, second, firstKey, secondKey = firstKey) {
+    return String(first?.[firstKey] || "").localeCompare(String(second?.[secondKey] || ""), "en", {
         sensitivity: "base"
     });
+}
+
+export function compareMembersByBirthDate(first, second) {
+    const dateDifference = comparableDate(first?.birth_date) - comparableDate(second?.birth_date);
+    return dateDifference || compareText(first, second, "name");
+}
+
+export function compareAlbumsByReleaseDate(first, second) {
+    const dateDifference = comparableDate(first?.release_date) - comparableDate(second?.release_date);
+    return dateDifference || compareText(first, second, "title");
+}
+
+export function compareVideosByReleaseDate(first, second) {
+    const dateDifference = comparableDate(first?.release_date) - comparableDate(second?.release_date);
+    return dateDifference || compareText(first, second, "title");
+}
+
+export function compareArtistsByDebutDate(first, second) {
+    const dateDifference = comparableDate(first?.debut_date) - comparableDate(second?.debut_date);
+    return dateDifference || compareText(first, second, "name");
 }
 
 export function fallbackImage() {

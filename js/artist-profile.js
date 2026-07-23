@@ -1,5 +1,8 @@
 import { supabase } from "./supabase.js";
 import {
+    compareAlbumsByReleaseDate,
+    compareMembersByBirthDate,
+    compareVideosByReleaseDate,
     escapeHtml,
     fallbackImage,
     formatDate,
@@ -140,18 +143,18 @@ async function loadArtistProfile() {
     document.getElementById("artistDescription").textContent = artist.description || "Artist description is not available yet.";
 
     const [membersResult, albumsResult, videosResult] = await Promise.all([
-        supabase.from("members").select("*").eq("artist_id", artist.id).order("display_order", { ascending: true }).order("created_at", { ascending: true }),
-        supabase.from("albums").select("*").eq("artist_id", artist.id).order("release_date", { ascending: false }),
-        supabase.from("music_videos").select("*").eq("artist_id", artist.id).order("release_date", { ascending: false })
+        supabase.from("members").select("*").eq("artist_id", artist.id).order("name", { ascending: true }),
+        supabase.from("albums").select("*").eq("artist_id", artist.id).order("title", { ascending: true }),
+        supabase.from("music_videos").select("*").eq("artist_id", artist.id).order("title", { ascending: true })
     ]);
 
     if (membersResult.error) console.warn("Members:", membersResult.error.message);
     if (albumsResult.error) console.warn("Albums:", albumsResult.error.message);
     if (videosResult.error) console.warn("Videos:", videosResult.error.message);
 
-    renderMembers(membersResult.data || []);
-    renderAlbums(albumsResult.data || []);
-    renderVideos(videosResult.data || []);
+    renderMembers([...(membersResult.data || [])].sort(compareMembersByBirthDate));
+    renderAlbums([...(albumsResult.data || [])].sort(compareAlbumsByReleaseDate));
+    renderVideos([...(videosResult.data || [])].sort(compareVideosByReleaseDate));
 
     loadingElement.hidden = true;
     profileError.hidden = true;

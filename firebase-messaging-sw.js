@@ -1,4 +1,4 @@
-const CACHE_NAME = "van-cms-pwa-v5";
+const CACHE_NAME = "van-cms-pwa-v6";
 const APP_SHELL = [
   "./admin-login.html",
   "./dashboard.html",

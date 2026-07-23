@@ -1,6 +1,15 @@
 import { supabase } from "./supabase.js";
 import { uploadImage, removeImages } from "./storage.js";
-import { compareArtistsByDebutDate, escapeHtml, fallbackImage, formatDate, slugify } from "./utils.js";
+import {
+    compareAlbumsByReleaseDate,
+    compareArtistsByDebutDate,
+    compareMembersByBirthDate,
+    compareVideosByReleaseDate,
+    escapeHtml,
+    fallbackImage,
+    formatDate,
+    slugify
+} from "./utils.js";
 
 const byId = (id) => document.getElementById(id);
 
@@ -366,15 +375,14 @@ async function loadMembers() {
     const { data, error } = await supabase
         .from("members")
         .select("*")
-        .order("display_order", { ascending: true })
-        .order("created_at", { ascending: true });
+        .order("name", { ascending: true });
 
     if (error) {
         loading.textContent = `Failed to load members: ${error.message}`;
         return;
     }
 
-    state.members = data || [];
+    state.members = [...(data || [])].sort(compareMembersByBirthDate);
     loading.textContent = "";
 
     if (!state.members.length) {
@@ -390,7 +398,7 @@ async function loadMembers() {
             <div class="admin-card-body">
                 <h3>${escapeHtml(member.name)}</h3>
                 <p>${escapeHtml(member.position || "Member")}</p>
-                <small>${escapeHtml(artistName(member.artist_id))}</small>
+                <small>${escapeHtml(artistName(member.artist_id))} · ${escapeHtml(formatDate(member.birth_date, "Birthday not set"))}</small>
                 <div class="admin-card-actions">
                     <button type="button" class="secondary-btn" data-edit-member="${member.id}">Edit</button>
                     <button type="button" class="danger-btn" data-delete-member="${member.id}">Delete</button>
@@ -517,14 +525,14 @@ async function loadAlbums() {
     const { data, error } = await supabase
         .from("albums")
         .select("*")
-        .order("release_date", { ascending: false });
+        .order("title", { ascending: true });
 
     if (error) {
         loading.textContent = `Failed to load albums: ${error.message}`;
         return;
     }
 
-    state.albums = data || [];
+    state.albums = [...(data || [])].sort(compareAlbumsByReleaseDate);
     loading.textContent = "";
 
     if (!state.albums.length) {
@@ -665,14 +673,14 @@ async function loadVideos() {
     const { data, error } = await supabase
         .from("music_videos")
         .select("*")
-        .order("release_date", { ascending: false });
+        .order("title", { ascending: true });
 
     if (error) {
         loading.textContent = `Failed to load videos: ${error.message}`;
         return;
     }
 
-    state.videos = data || [];
+    state.videos = [...(data || [])].sort(compareVideosByReleaseDate);
     loading.textContent = "";
 
     if (!state.videos.length) {
