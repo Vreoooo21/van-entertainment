@@ -3,116 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>VAN CMS | Artists</title>
-
+    <title>VAN CMS | Owner Dashboard</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/admin.css">
 </head>
-
 <body class="admin-page">
-
     <aside class="admin-sidebar">
-        <img src="images/banner 1.png" alt="VAN Entertainment">
+        <a class="admin-brand" href="index.html" target="_blank" rel="noopener">
+            <img src="images/banner 1.png" alt="VAN Entertainment">
+            <div>
+                <strong>VAN CMS</strong>
+                <span id="ownerEmail">Owner</span>
+            </div>
+        </a>
 
-        <h2>VAN CMS</h2>
-
-        <nav class="admin-menu">
-            <a href="dashboard.html" class="active">Artists</a>
-            <a href="#">News</a>
-            <a href="#">Albums</a>
-            <a href="#">Music Videos</a>
+        <nav class="admin-menu" aria-label="Dashboard sections">
+            <button type="button" class="active" data-admin-tab="artists">Artists</button>
+            <button type="button" data-admin-tab="members">Members</button>
+            <button type="button" data-admin-tab="albums">Albums</button>
+            <button type="button" data-admin-tab="videos">Music Videos</button>
+            <button type="button" data-admin-tab="news">News</button>
         </nav>
 
-        <button type="button" id="logoutBtn">Logout</button>
+        <div class="admin-sidebar-footer">
+            <a href="index.html" target="_blank" rel="noopener">View Website ↗</a>
+            <button type="button" id="logoutBtn">Logout</button>
+        </div>
     </aside>
 
     <main class="admin-main">
-
-        <div class="admin-header">
+        <header class="admin-topbar">
             <div>
                 <p>Owner Dashboard</p>
-                <h1>Manage Artists</h1>
+                <h1>Content Management</h1>
+            </div>
+            <span class="admin-security-label">Authenticated session</span>
+        </header>
+
+        <section class="admin-panel" id="panel-artists">
+            <div class="panel-heading">
+                <div>
+                    <p>Artist Directory</p>
+                    <h2>Manage Artists</h2>
+                </div>
+                <button class="primary-btn" type="button" id="addArtistBtn">+ Add Artist</button>
             </div>
 
-            <button type="button" id="showFormBtn">
-                + Add Artist
-            </button>
-        </div>
-
-        <section class="artist-form-section" id="artistFormSection" hidden>
-            <h2>Add New Artist</h2>
-
-            <form id="artistForm">
-
-                <label for="artistName">Artist Name</label>
-                <input
-                    type="text"
-                    id="artistName"
-                    placeholder="Example: VALKYRIE"
-                    required
-                >
-
-                <label for="artistSlug">Slug</label>
-                <input
-                    type="text"
-                    id="artistSlug"
-                    placeholder="Example: valkyrie"
-                    required
-                >
-
-                <label for="artistType">Artist Type</label>
-                <select id="artistType" required>
-                    <option value="">Select type</option>
-                    <option value="Girl Group">Girl Group</option>
-                    <option value="Boy Group">Boy Group</option>
-                    <option value="Solo Artist">Solo Artist</option>
-                    <option value="Co-ed Group">Co-ed Group</option>
-                </select>
-
-                <label for="debutDate">Debut Date</label>
-                <input type="date" id="debutDate">
-
-                <label for="profileImageFile">Profile Image</label>
-
-                <input
-                 type="file"
-                 id="profileImageFile"
-                 accept="image/png, image/jpeg, image/webp"
-               >
-
-                <p class="input-help">
-                 Gunakan PNG, JPG, atau WebP. Maksimal 5 MB.
-                </p>
-
-                <label for="artistDescription">Description</label>
-                <textarea
-                    id="artistDescription"
-                    rows="5"
-                    placeholder="Artist description"
-                ></textarea>
-
-                <label class="checkbox-field">
-                    <input type="checkbox" id="isFeatured">
-                    Show on Featured Artists
-                </label>
-
-                <div class="form-actions">
-                    <button type="submit">Save Artist</button>
-                    <button type="button" id="cancelFormBtn">Cancel</button>
+            <section class="admin-form-section" id="artistFormSection" hidden>
+                <div class="form-heading">
+                    <h3 id="artistFormTitle">Add New Artist</h3>
+                    <p>Changes appear automatically on the public website.</p>
                 </div>
+                <form id="artistForm" class="admin-form">
+                    <div class="form-grid two-columns">
+                        <label>Artist Name
+                            <input type="text" id="artistName" placeholder="VALKYRIE" required>
+                        </label>
+                        <label>Slug
+                            <input type="text" id="artistSlug" placeholder="valkyrie" required>
+                        </label>
+                        <label>Artist Type
+                            <select id="artistType" required>
+                                <option value="">Select type</option>
+                                <option value="Girl Group">Girl Group</option>
+                                <option value="Boy Group">Boy Group</option>
+                                <option value="Solo Artist">Solo Artist</option>
+                                <option value="Co-ed Group">Co-ed Group</option>
+                            </select>
+                        </label>
+                        <label>Debut Date
+                            <input type="date" id="artistDebutDate">
+                        </label>
+                    </div>
+                    <label>Profile Image
+                        <input type="file" id="artistImageFile" accept="image/png,image/jpeg,image/webp">
+                        <small>JPG, PNG, or WebP. Maximum 5 MB. Leave empty while editing to keep the current image.</small>
+                    </label>
+                    <label>Description
+                        <textarea id="artistDescription" rows="5" placeholder="Artist introduction"></textarea>
+                    </label>
+                    <label class="checkbox-row">
+                        <input type="checkbox" id="artistFeatured">
+                        Show in Featured Artists on the homepage
+                    </label>
+                    <div class="form-actions">
+                        <button class="primary-btn" type="submit" id="saveArtistBtn">Save Artist</button>
+                        <button class="ghost-btn" type="button" id="cancelArtistBtn">Cancel</button>
+                    </div>
+                    <p class="form-message" id="artistFormMessage" aria-live="polite"></p>
+                </form>
+            </section>
 
-                <p id="formMessage"></p>
-            </form>
+            <p class="loading-message" id="artistLoading">Loading artists...</p>
+            <div class="admin-grid" id="artistList"></div>
         </section>
 
-        <section>
-            <p id="loadingMessage">Loading artists...</p>
-            <div class="admin-artist-grid" id="artistList"></div>
+        <section class="admin-panel" id="panel-members" hidden>
+            <div class="panel-heading">
+                <div><p>Group Lineup</p><h2>Manage Members</h2></div>
+                <button class="primary-btn" type="button" id="addMemberBtn">+ Add Member</button>
+            </div>
+            <section class="admin-form-section" id="memberFormSection" hidden>
+                <div class="form-heading"><h3 id="memberFormTitle">Add New Member</h3><p>Assign each member to an artist.</p></div>
+                <form id="memberForm" class="admin-form">
+                    <div class="form-grid two-columns">
+                        <label>Artist<select id="memberArtistId" required></select></label>
+                        <label>Member Name<input type="text" id="memberName" required></label>
+                        <label>Position<input type="text" id="memberPosition" placeholder="Leader, Main Vocal, Rapper"></label>
+                        <label>Birth Date<input type="date" id="memberBirthDate"></label>
+                        <label>Display Order<input type="number" id="memberDisplayOrder" value="0" min="0"></label>
+                        <label>Member Image<input type="file" id="memberImageFile" accept="image/png,image/jpeg,image/webp"></label>
+                    </div>
+                    <label>Description<textarea id="memberDescription" rows="4"></textarea></label>
+                    <div class="form-actions">
+                        <button class="primary-btn" type="submit" id="saveMemberBtn">Save Member</button>
+                        <button class="ghost-btn" type="button" id="cancelMemberBtn">Cancel</button>
+                    </div>
+                    <p class="form-message" id="memberFormMessage" aria-live="polite"></p>
+                </form>
+            </section>
+            <p class="loading-message" id="memberLoading">Loading members...</p>
+            <div class="admin-grid" id="memberList"></div>
         </section>
 
+        <section class="admin-panel" id="panel-albums" hidden>
+            <div class="panel-heading">
+                <div><p>Discography</p><h2>Manage Albums</h2></div>
+                <button class="primary-btn" type="button" id="addAlbumBtn">+ Add Album</button>
+            </div>
+            <section class="admin-form-section" id="albumFormSection" hidden>
+                <div class="form-heading"><h3 id="albumFormTitle">Add New Album</h3><p>Add releases to an artist profile.</p></div>
+                <form id="albumForm" class="admin-form">
+                    <div class="form-grid two-columns">
+                        <label>Artist<select id="albumArtistId" required></select></label>
+                        <label>Album Title<input type="text" id="albumTitle" required></label>
+                        <label>Release Type<input type="text" id="albumType" placeholder="Single Album, Mini Album, EP"></label>
+                        <label>Release Date<input type="date" id="albumReleaseDate"></label>
+                    </div>
+                    <label>Spotify / Streaming URL<input type="url" id="albumSpotifyUrl" placeholder="https://..."></label>
+                    <label>Cover Image<input type="file" id="albumImageFile" accept="image/png,image/jpeg,image/webp"></label>
+                    <div class="form-actions">
+                        <button class="primary-btn" type="submit" id="saveAlbumBtn">Save Album</button>
+                        <button class="ghost-btn" type="button" id="cancelAlbumBtn">Cancel</button>
+                    </div>
+                    <p class="form-message" id="albumFormMessage" aria-live="polite"></p>
+                </form>
+            </section>
+            <p class="loading-message" id="albumLoading">Loading albums...</p>
+            <div class="admin-grid" id="albumListAdmin"></div>
+        </section>
+
+        <section class="admin-panel" id="panel-videos" hidden>
+            <div class="panel-heading">
+                <div><p>Video Releases</p><h2>Manage Music Videos</h2></div>
+                <button class="primary-btn" type="button" id="addVideoBtn">+ Add Video</button>
+            </div>
+            <section class="admin-form-section" id="videoFormSection" hidden>
+                <div class="form-heading"><h3 id="videoFormTitle">Add New Music Video</h3><p>YouTube links are embedded automatically on artist profiles.</p></div>
+                <form id="videoForm" class="admin-form">
+                    <div class="form-grid two-columns">
+                        <label>Artist<select id="videoArtistId" required></select></label>
+                        <label>Video Title<input type="text" id="videoTitle" required></label>
+                        <label>Release Date<input type="date" id="videoReleaseDate"></label>
+                        <label>Thumbnail Image<input type="file" id="videoImageFile" accept="image/png,image/jpeg,image/webp"></label>
+                    </div>
+                    <label>YouTube URL<input type="url" id="videoYoutubeUrl" placeholder="https://www.youtube.com/watch?v=..." required></label>
+                    <div class="form-actions">
+                        <button class="primary-btn" type="submit" id="saveVideoBtn">Save Video</button>
+                        <button class="ghost-btn" type="button" id="cancelVideoBtn">Cancel</button>
+                    </div>
+                    <p class="form-message" id="videoFormMessage" aria-live="polite"></p>
+                </form>
+            </section>
+            <p class="loading-message" id="videoLoading">Loading videos...</p>
+            <div class="admin-grid" id="videoListAdmin"></div>
+        </section>
+
+        <section class="admin-panel" id="panel-news" hidden>
+            <div class="panel-heading">
+                <div><p>Announcements</p><h2>Manage News</h2></div>
+                <button class="primary-btn" type="button" id="addNewsBtn">+ Add News</button>
+            </div>
+            <section class="admin-form-section" id="newsFormSection" hidden>
+                <div class="form-heading"><h3 id="newsFormTitle">Add News</h3><p>Drafts remain hidden from the public website.</p></div>
+                <form id="newsForm" class="admin-form">
+                    <div class="form-grid two-columns">
+                        <label>Title<input type="text" id="newsTitle" required></label>
+                        <label>Slug<input type="text" id="newsSlug" required></label>
+                        <label>Publish Date<input type="date" id="newsPublishDate"></label>
+                        <label>Cover Image<input type="file" id="newsImageFile" accept="image/png,image/jpeg,image/webp"></label>
+                    </div>
+                    <label>Summary<textarea id="newsSummary" rows="3" placeholder="Short description for news cards"></textarea></label>
+                    <label>Full Content<textarea id="newsContent" rows="10" required placeholder="Write the full article here. Use a blank line to separate paragraphs."></textarea></label>
+                    <label class="checkbox-row"><input type="checkbox" id="newsPublished"> Publish this news</label>
+                    <div class="form-actions">
+                        <button class="primary-btn" type="submit" id="saveNewsBtn">Save News</button>
+                        <button class="ghost-btn" type="button" id="cancelNewsBtn">Cancel</button>
+                    </div>
+                    <p class="form-message" id="newsFormMessage" aria-live="polite"></p>
+                </form>
+            </section>
+            <p class="loading-message" id="newsLoading">Loading news...</p>
+            <div class="admin-grid" id="newsListAdmin"></div>
+        </section>
     </main>
 
-    <script type="module" src="js/artists.js"></script>
+    <script type="module" src="js/admin.js"></script>
 </body>
 </html>

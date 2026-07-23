@@ -1,43 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Owner Login | VAN ENTERTAINMENT</title>
-
-<link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/admin.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Login | VAN ENTERTAINMENT</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin.css">
 </head>
-
-<body>
-
-<div class="login-box">
-
-    <img src="images/banner 1.png" alt="Logo">
-
-    <h1>OWNER LOGIN</h1>
-
-    <input
-        type="email"
-        id="email"
-        placeholder="Email">
-
-    <input
-        type="password"
-        id="password"
-        placeholder="Password">
-
-    <button id="loginBtn">
-        LOGIN
-    </button>
-
-</div>
-
-<script type="module" src="js/login.js"></script>
-
+<body class="login-page">
+    <main class="login-shell">
+        <a href="index.html" class="login-brand"><img src="images/banner 1.png" alt="VAN ENTERTAINMENT"><span>VAN ENTERTAINMENT</span></a>
+        <section class="login-box">
+            <span class="eyebrow">PRIVATE ACCESS</span>
+            <h1>OWNER LOGIN</h1>
+            <p>Sign in with the owner account connected to Supabase.</p>
+            <form id="loginForm">
+                <label>Email<input type="email" id="email" autocomplete="email" required placeholder="owner@example.com"></label>
+                <label>Password<input type="password" id="password" autocomplete="current-password" required placeholder="••••••••"></label>
+                <button class="primary-btn" type="submit" id="loginBtn">Login</button>
+                <p class="form-message" id="loginMessage" aria-live="polite"></p>
+            </form>
+            <a href="index.html" class="text-link">← Back to Website</a>
+        </section>
+    </main>
+    <script type="module" src="js/login.js"></script>
 </body>
 </html>

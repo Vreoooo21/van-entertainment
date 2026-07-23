@@ -3,145 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explore artists under VAN ENTERTAINMENT.">
     <title>Artists | VAN ENTERTAINMENT</title>
     <link rel="icon" type="image/png" href="images/favicon.png">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/navbar.css">
-    <link rel="stylesheet" href="css/hero.css">
-    <link rel="stylesheet" href="css/cards.css">
-    <link rel="stylesheet" href="css/footer.css">
-    <link rel="stylesheet" href="css/responsive.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/cards.css">
     <link rel="stylesheet" href="css/artists.css">
-    <li><a href="artists.html" class="active">Artists</a></li>
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
-    <button id="topBtn">↑</button>
+    <button id="topBtn" aria-label="Back to top">↑</button>
+    <header class="site-header">
+        <nav class="site-nav">
+            <a class="logo" href="index.html"><img src="images/banner 1.png" alt="VAN ENTERTAINMENT"></a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="artists.html" class="active">Artists</a></li>
+                <li><a href="survival.html">Survival</a></li>
+                <li><a href="news.html">News</a></li>
+                <li><a href="audition.html">Audition</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+            <button class="menu-icon" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+        </nav>
+    </header>
 
-<header>
-    <nav>
+    <main>
+        <section class="page-hero compact-hero">
+            <span class="eyebrow">VAN ENTERTAINMENT ROSTER</span>
+            <h1>OUR ARTISTS</h1>
+            <p>Meet the virtual artists creating music, stories, and stages under VAN ENTERTAINMENT.</p>
+        </section>
 
-        <div class="logo">
-            <img src="images/banner 1.png" alt="VAN ENTERTAINMENT">
+        <section class="artists-page">
+            <div class="artist-filter" aria-label="Filter artists">
+                <button type="button" class="active" data-artist-filter="All">All</button>
+                <button type="button" data-artist-filter="Girl Group">Girl Group</button>
+                <button type="button" data-artist-filter="Boy Group">Boy Group</button>
+                <button type="button" data-artist-filter="Solo Artist">Solo</button>
+                <button type="button" data-artist-filter="Co-ed Group">Co-ed</button>
+            </div>
+            <div class="artist-grid" id="publicArtistList"><p class="loading-state">Loading artists...</p></div>
+        </section>
+    </main>
+
+    <footer id="footer">
+        <div class="footer-container">
+            <div class="footer-logo"><img src="images/banner 1.png" alt="VAN Logo"><h2>VAN ENTERTAINMENT</h2><p>Old but Gold</p></div>
+            <div class="footer-links"><h3>Navigation</h3><a href="about.html">About</a><a href="artists.html">Artists</a><a href="survival.html">Survival</a><a href="news.html">News</a><a href="audition.html">Audition</a></div>
+            <div class="footer-social"><h3>Follow Us</h3><a href="https://www.instagram.com/vanentertainment" target="_blank" rel="noopener noreferrer">Instagram</a><a href="https://www.youtube.com/@VAN_ENTERTAINMENT01" target="_blank" rel="noopener noreferrer">YouTube</a><a href="https://www.tiktok.com/@vanentertainment_" target="_blank" rel="noopener noreferrer">TikTok</a><a href="https://whatsapp.com/channel/0029VbBzPhyCRs1x2V2AMz1B" target="_blank" rel="noopener noreferrer">WhatsApp</a></div>
         </div>
+        <div class="copyright">© 2026 VAN ENTERTAINMENT. All Rights Reserved.</div>
+    </footer>
 
-        <ul class="nav-links">
-         <li><a href="index.html">Home</a></li>
-         <li><a href="index.html#about">About</a></li>
-         <li><a href="artists.html" class="active">Artists</a></li>
-         <li><a href="survival.html">Survival</a></li>
-         <li><a href="index.html#news">News</a></li>
-         <li><a href="audition.html">Audition</a></li>
-         <li><a href="index.html#footer">Contact</a></li>
-        </ul>
-
-        <div class="menu-icon">☰</div>
-
-    </nav>
-</header>
-<section class="artists-page">
-
-  <h1>OUR ARTISTS</h1>
-
-<p>
-Meet the talented artists under
-VAN ENTERTAINMENT.
-</p>
-
-<div class="artist-filter">
-
-    <button class="active">All</button>
-
-    <button>Girl Group</button>
-
-    <button>Boy Group</button>
-
-    <button>Solo</button>
-
-</div>
-
-<div class="artist-grid" id="publicArtistList">
-    <p>Loading artists...</p>
-</div>
-
-</section>
- <script src="js/script.js"></script>
-
- </section>
-<footer>
-
-    <h2>VAN ENTERTAINMENT</h2>
-
-    <p>
-        Old but Gold
-    </p>
-
-    <p>
-        © 2026 VAN ENTERTAINMENT.
-        All Rights Reserved.
-    </p>
-
-</footer>
-    <script src="js/script.js"></script>
-
-<footer>
-
-    <div class="footer-container">
-
-        <div class="footer-logo">
-
-            <img src="images/banner 1.png" alt="VAN Logo">
-
-            <h2>VAN ENTERTAINMENT</h2>
-
-            <p>Old but Gold</p>
-
-        </div>
-
-        <div class="footer-links">
-
-            <h3>Navigation</h3>
-
-            <a href="index.html">Home</a>
-            <a href="index.html#about">About</a>
-            <a href="artists.html">Artists</a>
-            <a href="news.html">News</a>
-            <a href="audition.html">Audition</a>
-
-
-        </div>
-
-     <div class="footer-social" id="footer">
-
-      <h3>Follow Us</h3>
-
-      <a href="https://www.instagram.com/vanentertainment" target="_blank">Instagram</a>
-
-      <a href="https://www.youtube.com/@VAN_ENTERTAINMENT01" target="_blank">YouTube</a>
-
-      <a href="https://www.tiktok.com/@vanentertainment_" target="_blank">TikTok</a>
-
-      <a href="https://whatsapp.com/channel/0029VbBzPhyCRs1x2V2AMz1B" target="_blank">WhatsApp</a>
-
-</div>
-
-    </div>
-
-    <div class="copyright">
-
-        © 2026 VAN ENTERTAINMENT. All Rights Reserved.
-
-    </div>
-
-</footer>
-
-<script type="module" src="js/public-artists.js"></script>
-
+    <script type="module" src="js/script.js"></script>
+    <script type="module" src="js/public-artists.js"></script>
 </body>
 </html>

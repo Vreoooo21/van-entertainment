@@ -2,124 +2,100 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Artist | VAN ENTERTAINMENT</title>
-
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/navbar.css">
     <link rel="stylesheet" href="css/profile.css">
+    <link rel="stylesheet" href="css/footer.css">
     <link rel="stylesheet" href="css/responsive.css">
 </head>
-
 <body>
-
-    <header>
-        <nav>
-            <div class="logo">
-                <a href="index.html">
-                    <img
-                        src="images/banner 1.png"
-                        alt="VAN Entertainment"
-                    >
-                </a>
-            </div>
-
-            <ul>
+    <button id="topBtn" aria-label="Back to top">↑</button>
+    <header class="site-header">
+        <nav class="site-nav">
+            <a class="logo" href="index.html"><img src="images/banner 1.png" alt="VAN ENTERTAINMENT"></a>
+            <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
-                <li><a href="artists.html">Artists</a></li>
-                <li><a href="universe.html">Universe</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="artists.html" class="active">Artists</a></li>
+                <li><a href="survival.html">Survival</a></li>
                 <li><a href="news.html">News</a></li>
                 <li><a href="audition.html">Audition</a></li>
+                <li><a href="contact.html">Contact</a></li>
             </ul>
+            <button class="menu-icon" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
         </nav>
     </header>
 
     <main id="artistProfile">
+        <section class="profile-loading" id="profileLoading"><p>Loading artist profile...</p></section>
 
-        <section class="profile-loading" id="profileLoading">
-            <p>Loading artist profile...</p>
-        </section>
+        <div id="profileContent" hidden>
+            <section class="profile-hero">
+                <div class="profile-image-wrap">
+                    <img id="artistProfileImage" src="images/banner 1.png" alt="Artist profile" onerror="this.src='images/banner 1.png'">
+                </div>
+                <div class="profile-hero-copy">
+                    <span class="eyebrow">VAN ENTERTAINMENT ARTIST</span>
+                    <h1 id="artistName"></h1>
+                    <h3 id="artistType"></h3>
+                    <p id="artistDebut"></p>
+                    <a href="artists.html" class="text-link">← Back to Artists</a>
+                </div>
+            </section>
 
-        <section
-            class="profile-hero"
-            id="profileContent"
-            hidden
-        >
-            <img
-                id="artistProfileImage"
-                src="images/logo.png"
-                alt=""
-            >
+            <section class="profile-info">
+                <div class="info-card">
+                    <span class="eyebrow">ARTIST PROFILE</span>
+                    <h2>About</h2>
+                    <div class="profile-meta">
+                        <p><b>Artist</b><span id="profileName"></span></p>
+                        <p><b>Type</b><span id="profileType"></span></p>
+                        <p><b>Debut</b><span id="profileDebut"></span></p>
+                        <p><b>Agency</b><span>VAN ENTERTAINMENT</span></p>
+                    </div>
+                    <p class="artist-description" id="artistDescription"></p>
+                </div>
+            </section>
 
-            <h1 id="artistName"></h1>
+            <section class="profile-section" id="membersSection" hidden>
+                <span class="eyebrow">LINEUP</span><h2>MEMBERS</h2>
+                <div class="member-grid" id="memberList"></div>
+            </section>
 
-            <h3 id="artistType"></h3>
+            <section class="profile-section" id="discographySection" hidden>
+                <span class="eyebrow">MUSIC</span><h2>DISCOGRAPHY</h2>
+                <div class="album-grid" id="albumList"></div>
+            </section>
 
-            <p id="artistDebut"></p>
-        </section>
+            <section class="profile-section" id="videosSection" hidden>
+                <span class="eyebrow">WATCH</span><h2>MUSIC VIDEOS</h2>
+                <div class="video-grid" id="videoList"></div>
+            </section>
+        </div>
 
-        <section
-            class="profile-info"
-            id="artistInfoSection"
-            hidden
-        >
-            <div class="info-card">
-                <h2>Profile</h2>
-
-                <p>
-                    <b>Artist:</b>
-                    <span id="profileName"></span>
-                </p>
-
-                <p>
-                    <b>Type:</b>
-                    <span id="profileType"></span>
-                </p>
-
-                <p>
-                    <b>Debut:</b>
-                    <span id="profileDebut"></span>
-                </p>
-
-                <p>
-                    <b>Agency:</b>
-                    VAN ENTERTAINMENT
-                </p>
-
-                <p
-                    class="artist-description"
-                    id="artistDescription"
-                ></p>
-            </div>
-        </section>
-
-        <section
-            class="profile-error"
-            id="profileError"
-            hidden
-        >
+        <section class="profile-error" id="profileError" hidden>
             <h1>Artist Not Found</h1>
-
-            <p>
-                The artist profile could not be found.
-            </p>
-
-            <a href="artists.html">
-                Back to Artists
-            </a>
+            <p id="profileErrorText">The artist profile could not be found.</p>
+            <a href="artists.html" class="btn-primary">Back to Artists</a>
         </section>
-
     </main>
 
-    <script
-        type="module"
-        src="js/artist-profile.js"
-    ></script>
+    <footer id="footer">
+        <div class="footer-container">
+            <div class="footer-logo"><img src="images/banner 1.png" alt="VAN Logo"><h2>VAN ENTERTAINMENT</h2><p>Old but Gold</p></div>
+            <div class="footer-links"><h3>Navigation</h3><a href="about.html">About</a><a href="artists.html">Artists</a><a href="survival.html">Survival</a><a href="news.html">News</a><a href="audition.html">Audition</a></div>
+            <div class="footer-social"><h3>Follow Us</h3><a href="https://www.instagram.com/vanentertainment" target="_blank" rel="noopener noreferrer">Instagram</a><a href="https://www.youtube.com/@VAN_ENTERTAINMENT01" target="_blank" rel="noopener noreferrer">YouTube</a><a href="https://www.tiktok.com/@vanentertainment_" target="_blank" rel="noopener noreferrer">TikTok</a><a href="https://whatsapp.com/channel/0029VbBzPhyCRs1x2V2AMz1B" target="_blank" rel="noopener noreferrer">WhatsApp</a></div>
+        </div>
+        <div class="copyright">© 2026 VAN ENTERTAINMENT. All Rights Reserved.</div>
+    </footer>
 
+    <script type="module" src="js/script.js"></script>
+    <script type="module" src="js/artist-profile.js"></script>
 </body>
 </html>

@@ -1,5 +1,9 @@
 import { supabase } from "./supabase.js";
 
+/* =========================
+   ELEMENTS
+========================= */
+
 const artistList = document.getElementById("artistList");
 const loadingMessage = document.getElementById("loadingMessage");
 const artistForm = document.getElementById("artistForm");
@@ -8,6 +12,21 @@ const showFormBtn = document.getElementById("showFormBtn");
 const cancelFormBtn = document.getElementById("cancelFormBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const formMessage = document.getElementById("formMessage");
+
+const artistFormTitle = document.getElementById("artistFormTitle");
+const saveArtistBtn = document.getElementById("saveArtistBtn");
+
+/* =========================
+   STATE
+========================= */
+
+let artistsCache = [];
+let editingArtistId = null;
+let existingProfileImage = null;
+
+/* =========================
+   AUTH PROTECTION
+========================= */
 
 async function protectDashboard() {
     const { data, error } = await supabase.auth.getSession();
@@ -20,8 +39,12 @@ async function protectDashboard() {
     return true;
 }
 
+/* =========================
+   HELPERS
+========================= */
+
 function escapeHtml(value = "") {
-    return value
+    return String(value)
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
@@ -29,8 +52,25 @@ function escapeHtml(value = "") {
         .replaceAll("'", "&#039;");
 }
 
+function resetArtistForm() {
+    artistForm.reset();
+
+    editingArtistId = null;
+    existingProfileImage = null;
+
+    artistFormTitle.textContent = "Add New Artist";
+    saveArtistBtn.textContent = "Save Artist";
+
+    formMessage.textContent = "";
+}
+
+/* =========================
+   LOAD ARTISTS
+========================= */
+
 async function loadArtists() {
     loadingMessage.textContent = "Loading artists...";
+    artistList.innerHTML = "";
 
     const { data: artists, error } = await supabase
         .from("artists")
@@ -38,181 +78,318 @@ async function loadArtists() {
         .order("created_at", { ascending: false });
 
     if (error) {
-        loadingMessage.textContent = `Failed to load artists: ${error.message}`;
+        loadingMessage.textContent =
+            `Failed to load artists: ${error.message}`;
         return;
     }
 
+    artistsCache = artists || [];
     loadingMessage.textContent = "";
 
-    if (!artists || artists.length === 0) {
-        artistList.innerHTML = "<p>No artists have been added yet.</p>";
+    if (artistsCache.length === 0) {
+        artistList.innerHTML =
+            "<p>No artists have been added yet.</p>";
         return;
     }
 
-    artistList.innerHTML = artists.map((artist) => {
-        const image = artist.profile_image
-            ? escapeHtml(artist.profile_image)
-            : "images/logo.png";
+    artistList.innerHTML = artistsCache
+        .map((artist) => {
+            const image =
+                artist.profile_image || "images/logo.png";
 
-        return `
-            <article class="admin-artist-card">
-                <img
-                    src="${image}"
-                    alt="${escapeHtml(artist.name)}"
-                    onerror="this.src='images/logo.png'"
-                >
+            return `
+                <article class="admin-artist-card">
+                    <img
+                        src="${escapeHtml(image)}"
+                        alt="${escapeHtml(artist.name)}"
+                        onerror="this.src='images/logo.png'"
+                    >
 
-                <div class="admin-artist-content">
-                    <h2>${escapeHtml(artist.name)}</h2>
-                    <span>${escapeHtml(artist.artist_type)}</span>
+                    <div class="admin-artist-content">
+                        <h2>${escapeHtml(artist.name)}</h2>
 
-                    <div class="admin-artist-actions">
-                        <button
-                            type="button"
-                            class="delete-artist-btn"
-                            data-id="${artist.id}"
-                            data-name="${escapeHtml(artist.name)}"
-                        >
-                            Delete
-                        </button>
+                        <span>
+                            ${escapeHtml(artist.artist_type)}
+                        </span>
+
+                        <div class="admin-artist-actions">
+                            <button
+                                type="button"
+                                class="edit-artist-btn"
+                                data-id="${artist.id}"
+                            >
+                                Edit
+                            </button>
+
+                            <button
+                                type="button"
+                                class="delete-artist-btn"
+                                data-id="${artist.id}"
+                                data-name="${escapeHtml(artist.name)}"
+                            >
+                                Delete
+                            </button>
+                        </div>
                     </div>
-                </div>
-            </article>
-        `;
-    }).join("");
+                </article>
+            `;
+        })
+        .join("");
 }
+
+/* =========================
+   UPLOAD IMAGE
+========================= */
+
+async function uploadArtistImage(imageFile) {
+    const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/webp"
+    ];
+
+    const maximumSize = 5 * 1024 * 1024;
+
+    if (!allowedTypes.includes(imageFile.type)) {
+        throw new Error(
+            "Gunakan gambar JPG, PNG, atau WebP."
+        );
+    }
+
+    if (imageFile.size > maximumSize) {
+        throw new Error(
+            "Ukuran gambar maksimal 5 MB."
+        );
+    }
+
+    const safeOriginalName = imageFile.name
+        .toLowerCase()
+        .replace(/[^a-z0-9.-]/g, "-");
+
+    const uniqueFileName =
+        `${crypto.randomUUID()}-${safeOriginalName}`;
+
+    const filePath = `profiles/${uniqueFileName}`;
+
+    const { error: uploadError } = await supabase
+        .storage
+        .from("artist-images")
+        .upload(filePath, imageFile, {
+            cacheControl: "3600",
+            upsert: false
+        });
+
+    if (uploadError) {
+        throw new Error(uploadError.message);
+    }
+
+    const { data: publicUrlData } = supabase
+        .storage
+        .from("artist-images")
+        .getPublicUrl(filePath);
+
+    return publicUrlData.publicUrl;
+}
+
+/* =========================
+   SAVE / UPDATE ARTIST
+========================= */
 
 artistForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
+    saveArtistBtn.disabled = true;
     formMessage.textContent = "Saving...";
 
-    const imageInput =
-        document.getElementById("profileImageFile");
+    try {
+        const imageInput =
+            document.getElementById("profileImageFile");
 
-    const imageFile = imageInput.files[0];
+        const imageFile = imageInput?.files?.[0];
 
-    let profileImageUrl = null;
+        // Saat edit, foto lama tetap dipakai
+        // kalau owner tidak memilih foto baru.
+        let profileImageUrl = existingProfileImage;
 
-    if (imageFile) {
-        const allowedTypes = [
-            "image/jpeg",
-            "image/png",
-            "image/webp"
-        ];
+        if (imageFile) {
+            formMessage.textContent = "Uploading image...";
 
-        const maximumSize = 5 * 1024 * 1024;
-
-        if (!allowedTypes.includes(imageFile.type)) {
-            formMessage.textContent =
-                "Gunakan gambar JPG, PNG, atau WebP.";
-            return;
+            profileImageUrl =
+                await uploadArtistImage(imageFile);
         }
 
-        if (imageFile.size > maximumSize) {
-            formMessage.textContent =
-                "Ukuran gambar maksimal 5 MB.";
-            return;
-        }
-
-        const safeOriginalName = imageFile.name
-            .toLowerCase()
-            .replace(/[^a-z0-9.-]/g, "-");
-
-        const uniqueFileName =
-            `${crypto.randomUUID()}-${safeOriginalName}`;
-
-        const filePath = `profiles/${uniqueFileName}`;
-
-        formMessage.textContent = "Uploading image...";
-
-        const { error: uploadError } = await supabase
-            .storage
-            .from("artist-images")
-            .upload(filePath, imageFile, {
-                cacheControl: "3600",
-                upsert: false
-            });
-
-        if (uploadError) {
-            formMessage.textContent =
-                `Upload failed: ${uploadError.message}`;
-            return;
-        }
-
-        const { data: publicUrlData } = supabase
-            .storage
-            .from("artist-images")
-            .getPublicUrl(filePath);
-
-        profileImageUrl = publicUrlData.publicUrl;
-    }
-
-    const newArtist = {
-        name: document
+        const artistName = document
             .getElementById("artistName")
             .value
-            .trim(),
+            .trim();
 
-        slug: document
+        const artistSlug = document
             .getElementById("artistSlug")
             .value
             .trim()
-            .toLowerCase(),
+            .toLowerCase();
 
-        artist_type:
-            document.getElementById("artistType").value,
+        const artistType = document
+            .getElementById("artistType")
+            .value;
 
-        debut_date:
-            document.getElementById("debutDate").value || null,
+        if (!artistName || !artistSlug || !artistType) {
+            throw new Error(
+                "Name, slug, dan artist type wajib diisi."
+            );
+        }
 
-        profile_image: profileImageUrl,
+        const artistData = {
+            name: artistName,
+            slug: artistSlug,
+            artist_type: artistType,
 
-        description:
-            document
-                .getElementById("artistDescription")
-                .value
-                .trim() || null,
+            debut_date:
+                document.getElementById("debutDate").value ||
+                null,
 
-        is_featured:
-            document.getElementById("isFeatured").checked
-    };
+            profile_image: profileImageUrl,
 
-    formMessage.textContent = "Saving artist...";
+            description:
+                document
+                    .getElementById("artistDescription")
+                    .value
+                    .trim() || null,
 
-    const { error: insertError } = await supabase
-        .from("artists")
-        .insert(newArtist);
+            is_featured:
+                document.getElementById("isFeatured").checked
+        };
 
-    if (insertError) {
+        formMessage.textContent = editingArtistId
+            ? "Updating artist..."
+            : "Saving artist...";
+
+        let saveError = null;
+
+        if (editingArtistId) {
+            const { error } = await supabase
+                .from("artists")
+                .update(artistData)
+                .eq("id", editingArtistId);
+
+            saveError = error;
+        } else {
+            const { error } = await supabase
+                .from("artists")
+                .insert(artistData);
+
+            saveError = error;
+        }
+
+        if (saveError) {
+            throw new Error(saveError.message);
+        }
+
+        resetArtistForm();
+        artistFormSection.hidden = true;
+
+        await loadArtists();
+    } catch (error) {
+        console.error(error);
+
         formMessage.textContent =
-            `Failed: ${insertError.message}`;
+            `Failed: ${error.message}`;
+    } finally {
+        saveArtistBtn.disabled = false;
+    }
+});
+
+/* =========================
+   EDIT / DELETE BUTTONS
+========================= */
+
+artistList.addEventListener("click", async (event) => {
+    /* ---------- EDIT ---------- */
+
+    const editButton =
+        event.target.closest(".edit-artist-btn");
+
+    if (editButton) {
+        const artistId = String(editButton.dataset.id);
+
+        const artist = artistsCache.find(
+            (item) => String(item.id) === artistId
+        );
+
+        if (!artist) {
+            alert("Artist data not found.");
+            return;
+        }
+
+        editingArtistId = artist.id;
+        existingProfileImage =
+            artist.profile_image || null;
+
+        document.getElementById("artistName").value =
+            artist.name || "";
+
+        document.getElementById("artistSlug").value =
+            artist.slug || "";
+
+        document.getElementById("artistType").value =
+            artist.artist_type || "";
+
+        document.getElementById("debutDate").value =
+            artist.debut_date || "";
+
+        document.getElementById(
+            "artistDescription"
+        ).value = artist.description || "";
+
+        document.getElementById("isFeatured").checked =
+            Boolean(artist.is_featured);
+
+        const imageInput =
+            document.getElementById("profileImageFile");
+
+        if (imageInput) {
+            imageInput.value = "";
+        }
+
+        artistFormTitle.textContent =
+            `Edit ${artist.name}`;
+
+        saveArtistBtn.textContent =
+            "Update Artist";
+
+        formMessage.textContent = "";
+        artistFormSection.hidden = false;
+
+        artistFormSection.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
         return;
     }
 
-    artistForm.reset();
-    artistFormSection.hidden = true;
-    formMessage.textContent = "";
+    /* ---------- DELETE ---------- */
 
-    await loadArtists();
-});
+    const deleteButton =
+        event.target.closest(".delete-artist-btn");
 
-artistList.addEventListener("click", async (event) => {
-    const button = event.target.closest(".delete-artist-btn");
+    if (!deleteButton) {
+        return;
+    }
 
-    if (!button) return;
-
-    const artistId = button.dataset.id;
-    const artistName = button.dataset.name;
+    const artistId = deleteButton.dataset.id;
+    const artistName = deleteButton.dataset.name;
 
     const confirmed = window.confirm(
         `Delete ${artistName} from the website?`
     );
 
-    if (!confirmed) return;
+    if (!confirmed) {
+        return;
+    }
 
-    button.disabled = true;
-    button.textContent = "Deleting...";
+    deleteButton.disabled = true;
+    deleteButton.textContent = "Deleting...";
 
     const { error } = await supabase
         .from("artists")
@@ -220,28 +397,50 @@ artistList.addEventListener("click", async (event) => {
         .eq("id", artistId);
 
     if (error) {
-        alert(`Failed to delete artist: ${error.message}`);
-        button.disabled = false;
-        button.textContent = "Delete";
+        alert(
+            `Failed to delete artist: ${error.message}`
+        );
+
+        deleteButton.disabled = false;
+        deleteButton.textContent = "Delete";
         return;
+    }
+
+    // Jika artis yang sedang diedit dihapus,
+    // tutup dan reset form.
+    if (String(editingArtistId) === String(artistId)) {
+        resetArtistForm();
+        artistFormSection.hidden = true;
     }
 
     await loadArtists();
 });
 
+/* =========================
+   OPEN / CLOSE FORM
+========================= */
+
 showFormBtn.addEventListener("click", () => {
+    resetArtistForm();
+
     artistFormSection.hidden = false;
+
     document.getElementById("artistName").focus();
 });
 
 cancelFormBtn.addEventListener("click", () => {
-    artistForm.reset();
-    formMessage.textContent = "";
+    resetArtistForm();
     artistFormSection.hidden = true;
 });
 
+/* =========================
+   LOGOUT
+========================= */
+
 logoutBtn.addEventListener("click", async () => {
-    const { error } = await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut({
+        scope: "local"
+    });
 
     if (error) {
         alert(error.message);
@@ -250,6 +449,10 @@ logoutBtn.addEventListener("click", async () => {
 
     window.location.replace("admin-login.html");
 });
+
+/* =========================
+   INITIALIZATION
+========================= */
 
 const authorized = await protectDashboard();
 

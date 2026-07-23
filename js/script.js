@@ -1,71 +1,34 @@
-window.addEventListener("load", function () {
+import "./navbar.js";
 
-    const loader = document.getElementById("loader");
+const topButton = document.getElementById("topBtn");
 
-    if(loader){
-        setTimeout(() => {
-            loader.style.display = "none";
-        }, 1800);
-    }
-
-});
-
-const topBtn = document.getElementById("topBtn");
-
-if(topBtn){
-
-    window.addEventListener("scroll", function(){
-
-        if(document.documentElement.scrollTop > 300){
-            topBtn.style.display = "block";
-        }else{
-            topBtn.style.display = "none";
-        }
-
-    });
-
-    topBtn.onclick = function(){
-
-        window.scrollTo({
-            top:0,
-            behavior:"smooth"
-        });
-
+if (topButton) {
+    const updateTopButton = () => {
+        topButton.classList.toggle("visible", window.scrollY > 450);
     };
 
+    window.addEventListener("scroll", updateTopButton, { passive: true });
+    updateTopButton();
+
+    topButton.addEventListener("click", () => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    });
 }
 
-const faders = document.querySelectorAll(".fade");
-
-window.addEventListener("scroll",()=>{
-
-    faders.forEach(item=>{
-
-        const top = item.getBoundingClientRect().top;
-
-        if(top < window.innerHeight - 100){
-            item.classList.add("show");
-        }
-
+const loader = document.getElementById("loader");
+if (loader) {
+    window.addEventListener("load", () => {
+        window.setTimeout(() => loader.classList.add("hidden"), 350);
     });
-
-});
-
-const menuIcon = document.querySelector(".menu-icon");
-const navLinks = document.querySelector(".nav-links");
-
-if(menuIcon && navLinks){
-
-    menuIcon.addEventListener("click",()=>{
-
-        navLinks.classList.toggle("active");
-
-        if(navLinks.classList.contains("active")){
-            menuIcon.textContent = "✕";
-        }else{
-            menuIcon.textContent = "☰";
-        }
-
-    });
-
 }
+
+const observer = new IntersectionObserver(
+    (entries) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) entry.target.classList.add("show");
+        });
+    },
+    { threshold: 0.12 }
+);
+
+document.querySelectorAll(".fade").forEach((element) => observer.observe(element));

@@ -1,77 +1,10 @@
-.detail-hero{
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    text-align:center;
-    flex-direction:column;
-    background:#111;
-    padding:120px 20px;
-}
-
-.detail-hero h1{
-    font-size:72px;
-    font-family:"Cinzel", serif;
-    margin-bottom:20px;
-}
-
-.detail-hero p{
-    color:#bbb;
-    max-width:700px;
-    line-height:1.8;
-}
-
-.detail-section{
-    padding:100px 10%;
-}
-
-.detail-section h2{
-    font-size:42px;
-    margin-bottom:30px;
-}
-
-.detail-section p{
-    color:#bbb;
-    line-height:1.8;
-}
-
-.boys-theme{
-    background:linear-gradient(135deg,#6EC6FF,#3B82F6);
-    color:white;
-}
-
-.girls-theme{
-    background:linear-gradient(135deg,#FF9ACD,#FF4FA3);
-    color:white;
-}
-
-.btn-boys{
-    background:#6EC6FF;
-    color:#111;
-}
-
-.btn-boys:hover{
-    background:#8FD8FF;
-}
-
-.btn-girls{
-    background:#FF69B4;
-    color:white;
-}
-
-.btn-girls:hover{
-    background:#FF8BC8;
-}
-
-.vland-title{
-    font-size:70px;
-    color:white;
-}
-
-.boys{
-    color:#6EC6FF;
-}
-
-.girls{
-    color:#FF69B4;
-}
+.detail-hero{min-height:100vh;padding:140px max(8vw,24px) 90px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:radial-gradient(circle at 50% 25%,rgba(255,255,255,.08),transparent 38%),var(--bg)}
+.detail-hero img{width:min(520px,90vw);max-height:620px;object-fit:cover;border-radius:var(--radius);margin-bottom:45px;box-shadow:var(--shadow)}
+.detail-hero h1{font-size:clamp(3rem,8vw,7rem)}
+.detail-hero h2{margin:10px 0 24px;color:var(--silver);letter-spacing:.25em}
+.detail-hero p{max-width:800px}
+.detail-section{padding:110px max(12vw,24px);text-align:center;background:#121214}
+.detail-section h2{font-size:clamp(2.5rem,5vw,4.5rem);margin-bottom:25px}
+.detail-section p{max-width:850px;margin:auto}
+.mission-grid{padding:100px max(7vw,24px)}
+.detail-cta{margin-top:0}

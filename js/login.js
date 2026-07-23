@@ -1,32 +1,33 @@
 import { supabase } from "./supabase.js";
 
-const loginBtn = document.getElementById("loginBtn");
+const form = document.getElementById("loginForm");
+const button = document.getElementById("loginBtn");
+const message = document.getElementById("loginMessage");
 
-loginBtn.addEventListener("click", async () => {
+const { data: existingSession } = await supabase.auth.getSession();
+if (existingSession.session) {
+    window.location.replace("dashboard.html");
+}
 
-    const email =
-        document.getElementById("email").value;
+form.addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-    const password =
-        document.getElementById("password").value;
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
 
-    const { error } =
-        await supabase.auth.signInWithPassword({
+    button.disabled = true;
+    button.textContent = "Signing in...";
+    message.textContent = "";
 
-            email,
-            password
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
 
-        });
-
-    if(error){
-
-        alert(error.message);
-
+    if (error) {
+        message.textContent = error.message;
+        message.dataset.type = "error";
+        button.disabled = false;
+        button.textContent = "Login";
         return;
-
     }
 
-    window.location.href =
-        "dashboard.html";
-
+    window.location.replace("dashboard.html");
 });
