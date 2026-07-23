@@ -1,0 +1,314 @@
+body{
+
+    background:#111;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    height:100vh;
+
+}
+
+.login-box{
+
+    width:380px;
+
+    background:#1b1b1b;
+
+    padding:45px;
+
+    border-radius:20px;
+
+    text-align:center;
+
+}
+
+.login-box img{
+
+    width:90px;
+
+    margin-bottom:25px;
+
+}
+
+.login-box h1{
+
+    margin-bottom:30px;
+
+}
+
+.login-box input{
+
+    width:100%;
+
+    padding:15px;
+
+    margin:12px 0;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#2a2a2a;
+
+    color:white;
+
+}
+
+.login-box button{
+
+    width:100%;
+
+    padding:15px;
+
+    margin-top:20px;
+
+    background:#B8B8B8;
+
+    color:#111;
+
+    border:none;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+    font-weight:bold;
+
+}
+
+/* =========================
+   ADMIN DASHBOARD
+========================= */
+
+.admin-page{
+    min-height:100vh;
+    display:grid;
+    grid-template-columns:260px 1fr;
+    background:#111;
+}
+
+.admin-sidebar{
+    position:sticky;
+    top:0;
+    height:100vh;
+    padding:35px 25px;
+    background:#181818;
+    border-right:1px solid rgba(255,255,255,.08);
+}
+
+.admin-sidebar img{
+    width:70px;
+    display:block;
+    margin:0 auto 20px;
+}
+
+.admin-sidebar h2{
+    text-align:center;
+    margin-bottom:40px;
+}
+
+.admin-menu{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.admin-menu a{
+    padding:13px 16px;
+    border-radius:10px;
+    color:#aaa;
+    text-decoration:none;
+}
+
+.admin-menu a:hover,
+.admin-menu a.active{
+    background:#292929;
+    color:#fff;
+}
+
+#logoutBtn{
+    position:absolute;
+    left:25px;
+    right:25px;
+    bottom:30px;
+    padding:13px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.admin-main{
+    padding:50px;
+}
+
+.admin-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:20px;
+    margin-bottom:40px;
+}
+
+.admin-header p{
+    color:#aaa;
+}
+
+.admin-header h1{
+    font-size:42px;
+}
+
+#showFormBtn{
+    padding:14px 25px;
+    border:none;
+    border-radius:30px;
+    background:#b8b8b8;
+    color:#111;
+    cursor:pointer;
+    font-weight:700;
+}
+
+.artist-form-section{
+    max-width:700px;
+    margin-bottom:50px;
+    padding:30px;
+    background:#1b1b1b;
+    border-radius:18px;
+}
+
+.artist-form-section h2{
+    margin-bottom:25px;
+}
+
+#artistForm{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+#artistForm input,
+#artistForm select,
+#artistForm textarea{
+    width:100%;
+    padding:14px;
+    border:1px solid #333;
+    border-radius:10px;
+    background:#252525;
+    color:#fff;
+}
+
+.checkbox-field{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:10px;
+}
+
+.checkbox-field input{
+    width:auto !important;
+}
+
+.form-actions{
+    display:flex;
+    gap:12px;
+    margin-top:20px;
+}
+
+.form-actions button{
+    padding:13px 25px;
+    border:none;
+    border-radius:25px;
+    cursor:pointer;
+}
+
+.form-actions button:first-child{
+    background:#b8b8b8;
+    color:#111;
+}
+
+.admin-artist-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+    gap:25px;
+}
+
+.admin-artist-card{
+    overflow:hidden;
+    background:#1b1b1b;
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:16px;
+}
+
+.admin-artist-card img{
+    width:100%;
+    height:220px;
+    object-fit:cover;
+    background:#252525;
+}
+
+.admin-artist-content{
+    padding:20px;
+}
+
+.admin-artist-content span{
+    color:#aaa;
+}
+
+.admin-artist-actions{
+    display:flex;
+    gap:10px;
+    margin-top:20px;
+}
+
+.admin-artist-actions button{
+    padding:10px 17px;
+    border:none;
+    border-radius:20px;
+    cursor:pointer;
+}
+
+.delete-artist-btn{
+    background:#353535;
+    color:#fff;
+}
+
+#formMessage{
+    min-height:24px;
+    color:#b8b8b8;
+}
+
+@media (max-width:768px){
+    .admin-page{
+        display:block;
+    }
+
+    .admin-sidebar{
+        position:relative;
+        width:100%;
+        height:auto;
+    }
+
+    #logoutBtn{
+        position:static;
+        width:100%;
+        margin-top:25px;
+    }
+
+    .admin-main{
+        padding:30px 20px;
+    }
+
+    .admin-header{
+        align-items:flex-start;
+        flex-direction:column;
+    }
+}
+
+.input-help{
+    color:#888;
+    font-size:13px;
+    margin-top:-5px;
+}

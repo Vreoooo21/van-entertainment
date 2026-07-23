@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>VAN CMS | Artists</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+
+<body class="admin-page">
+
+    <aside class="admin-sidebar">
+        <img src="images/banner 1.png" alt="VAN Entertainment">
+
+        <h2>VAN CMS</h2>
+
+        <nav class="admin-menu">
+            <a href="dashboard.html" class="active">Artists</a>
+            <a href="#">News</a>
+            <a href="#">Albums</a>
+            <a href="#">Music Videos</a>
+        </nav>
+
+        <button type="button" id="logoutBtn">Logout</button>
+    </aside>
+
+    <main class="admin-main">
+
+        <div class="admin-header">
+            <div>
+                <p>Owner Dashboard</p>
+                <h1>Manage Artists</h1>
+            </div>
+
+            <button type="button" id="showFormBtn">
+                + Add Artist
+            </button>
+        </div>
+
+        <section class="artist-form-section" id="artistFormSection" hidden>
+            <h2>Add New Artist</h2>
+
+            <form id="artistForm">
+
+                <label for="artistName">Artist Name</label>
+                <input
+                    type="text"
+                    id="artistName"
+                    placeholder="Example: VALKYRIE"
+                    required
+                >
+
+                <label for="artistSlug">Slug</label>
+                <input
+                    type="text"
+                    id="artistSlug"
+                    placeholder="Example: valkyrie"
+                    required
+                >
+
+                <label for="artistType">Artist Type</label>
+                <select id="artistType" required>
+                    <option value="">Select type</option>
+                    <option value="Girl Group">Girl Group</option>
+                    <option value="Boy Group">Boy Group</option>
+                    <option value="Solo Artist">Solo Artist</option>
+                    <option value="Co-ed Group">Co-ed Group</option>
+                </select>
+
+                <label for="debutDate">Debut Date</label>
+                <input type="date" id="debutDate">
+
+                <label for="profileImageFile">Profile Image</label>
+
+                <input
+                 type="file"
+                 id="profileImageFile"
+                 accept="image/png, image/jpeg, image/webp"
+               >
+
+                <p class="input-help">
+                 Gunakan PNG, JPG, atau WebP. Maksimal 5 MB.
+                </p>
+
+                <label for="artistDescription">Description</label>
+                <textarea
+                    id="artistDescription"
+                    rows="5"
+                    placeholder="Artist description"
+                ></textarea>
+
+                <label class="checkbox-field">
+                    <input type="checkbox" id="isFeatured">
+                    Show on Featured Artists
+                </label>
+
+                <div class="form-actions">
+                    <button type="submit">Save Artist</button>
+                    <button type="button" id="cancelFormBtn">Cancel</button>
+                </div>
+
+                <p id="formMessage"></p>
+            </form>
+        </section>
+
+        <section>
+            <p id="loadingMessage">Loading artists...</p>
+            <div class="admin-artist-grid" id="artistList"></div>
+        </section>
+
+    </main>
+
+    <script type="module" src="js/artists.js"></script>
+</body>
+</html>
