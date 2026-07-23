@@ -88,6 +88,22 @@ export function youtubeEmbedUrl(value = "") {
     return id ? `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}` : "";
 }
 
+export function compareArtistsByDebutDate(first, second) {
+    const firstDate = first?.debut_date ? Date.parse(`${first.debut_date}T00:00:00`) : Number.POSITIVE_INFINITY;
+    const secondDate = second?.debut_date ? Date.parse(`${second.debut_date}T00:00:00`) : Number.POSITIVE_INFINITY;
+
+    const safeFirstDate = Number.isNaN(firstDate) ? Number.POSITIVE_INFINITY : firstDate;
+    const safeSecondDate = Number.isNaN(secondDate) ? Number.POSITIVE_INFINITY : secondDate;
+
+    if (safeFirstDate !== safeSecondDate) {
+        return safeFirstDate - safeSecondDate;
+    }
+
+    return String(first?.name || "").localeCompare(String(second?.name || ""), "en", {
+        sensitivity: "base"
+    });
+}
+
 export function fallbackImage() {
     return "images/banner 1.png";
 }

@@ -75,7 +75,7 @@ async function loadArtists() {
     const { data: artists, error } = await supabase
         .from("artists")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("name", { ascending: true });
 
     if (error) {
         loadingMessage.textContent =
@@ -83,7 +83,13 @@ async function loadArtists() {
         return;
     }
 
-    artistsCache = artists || [];
+    artistsCache = [...(artists || [])].sort((first, second) => {
+        const firstDate = first?.debut_date ? Date.parse(`${first.debut_date}T00:00:00`) : Number.POSITIVE_INFINITY;
+        const secondDate = second?.debut_date ? Date.parse(`${second.debut_date}T00:00:00`) : Number.POSITIVE_INFINITY;
+
+        if (firstDate !== secondDate) return firstDate - secondDate;
+        return String(first?.name || "").localeCompare(String(second?.name || ""), "en", { sensitivity: "base" });
+    });
     loadingMessage.textContent = "";
 
     if (artistsCache.length === 0) {

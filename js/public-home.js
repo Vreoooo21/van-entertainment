@@ -1,5 +1,5 @@
 import { supabase } from "./supabase.js";
-import { escapeHtml, fallbackImage, formatMonthYear } from "./utils.js";
+import { compareArtistsByDebutDate, escapeHtml, fallbackImage, formatMonthYear } from "./utils.js";
 
 const featuredList = document.getElementById("featuredArtistList");
 const latestNewsList = document.getElementById("latestNewsList");
@@ -12,8 +12,7 @@ async function loadFeaturedArtists() {
         .from("artists")
         .select("id,name,slug,artist_type,debut_date,profile_image")
         .eq("is_featured", true)
-        .order("created_at", { ascending: false })
-        .limit(3);
+        .order("name", { ascending: true });
 
     if (error) {
         console.error("Featured artists:", error);
@@ -21,12 +20,16 @@ async function loadFeaturedArtists() {
         return;
     }
 
-    if (!data?.length) {
+    const featuredArtists = [...(data || [])]
+        .sort(compareArtistsByDebutDate)
+        .slice(0, 3);
+
+    if (!featuredArtists.length) {
         featuredList.innerHTML = '<p class="empty-state">Featured artists will appear here.</p>';
         return;
     }
 
-    featuredList.innerHTML = data.map((artist) => `
+    featuredList.innerHTML = featuredArtists.map((artist) => `
         <article class="artist-card">
             <img src="${escapeHtml(artist.profile_image || fallbackImage())}"
                  alt="${escapeHtml(artist.name)}"

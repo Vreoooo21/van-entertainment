@@ -1,6 +1,6 @@
 import { supabase } from "./supabase.js";
 import { uploadImage, removeImages } from "./storage.js";
-import { escapeHtml, fallbackImage, formatDate, slugify } from "./utils.js";
+import { compareArtistsByDebutDate, escapeHtml, fallbackImage, formatDate, slugify } from "./utils.js";
 
 const byId = (id) => document.getElementById(id);
 
@@ -170,14 +170,14 @@ async function loadArtists() {
     const { data, error } = await supabase
         .from("artists")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("name", { ascending: true });
 
     if (error) {
         loading.textContent = `Failed to load artists: ${error.message}`;
         return;
     }
 
-    state.artists = data || [];
+    state.artists = [...(data || [])].sort(compareArtistsByDebutDate);
     loading.textContent = "";
     refreshArtistSelects();
 

@@ -1,5 +1,5 @@
 import { supabase } from "./supabase.js";
-import { escapeHtml, fallbackImage, formatDate } from "./utils.js";
+import { compareArtistsByDebutDate, escapeHtml, fallbackImage, formatDate } from "./utils.js";
 
 const artistList = document.getElementById("publicArtistList");
 const filterButtons = document.querySelectorAll("[data-artist-filter]");
@@ -38,7 +38,7 @@ async function loadPublicArtists() {
     const { data, error } = await supabase
         .from("artists")
         .select("id,name,slug,artist_type,debut_date,profile_image,created_at")
-        .order("created_at", { ascending: false });
+        .order("name", { ascending: true });
 
     if (error) {
         console.error(error);
@@ -46,7 +46,7 @@ async function loadPublicArtists() {
         return;
     }
 
-    artistsCache = data || [];
+    artistsCache = [...(data || [])].sort(compareArtistsByDebutDate);
     renderArtists();
 }
 
