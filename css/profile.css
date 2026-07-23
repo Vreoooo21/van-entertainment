@@ -363,3 +363,36 @@
     margin-bottom:20px;
 }
 
+.profile-loading,
+.profile-error{
+    min-height:100vh;
+    padding:180px 20px 80px;
+    text-align:center;
+}
+
+.profile-error h1{
+    font-size:48px;
+    margin-bottom:20px;
+}
+
+.profile-error p{
+    color:#aaa;
+    margin-bottom:30px;
+}
+
+.profile-error a{
+    display:inline-block;
+    padding:13px 28px;
+    border-radius:30px;
+    background:#b8b8b8;
+    color:#111;
+    text-decoration:none;
+    font-weight:600;
+}
+
+.artist-description{
+    margin-top:30px !important;
+    padding-top:25px;
+    border-top:1px solid rgba(255,255,255,.08);
+    line-height:1.8;
+}

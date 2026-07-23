@@ -201,3 +201,20 @@
     transform:translateY(-8px);
 
 }
+
+.view-profile-btn{
+    display:inline-block;
+    margin-top:18px;
+    padding:11px 25px;
+    border-radius:30px;
+    background:#b8b8b8;
+    color:#111;
+    text-decoration:none;
+    font-weight:600;
+    transition:.3s;
+}
+
+.view-profile-btn:hover{
+    background:#ddd;
+    transform:translateY(-3px);
+}

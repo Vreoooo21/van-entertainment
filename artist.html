@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Artist | VAN ENTERTAINMENT</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/profile.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+
+<body>
+
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="index.html">
+                    <img
+                        src="images/banner 1.png"
+                        alt="VAN Entertainment"
+                    >
+                </a>
+            </div>
+
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="artists.html">Artists</a></li>
+                <li><a href="universe.html">Universe</a></li>
+                <li><a href="news.html">News</a></li>
+                <li><a href="audition.html">Audition</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main id="artistProfile">
+
+        <section class="profile-loading" id="profileLoading">
+            <p>Loading artist profile...</p>
+        </section>
+
+        <section
+            class="profile-hero"
+            id="profileContent"
+            hidden
+        >
+            <img
+                id="artistProfileImage"
+                src="images/logo.png"
+                alt=""
+            >
+
+            <h1 id="artistName"></h1>
+
+            <h3 id="artistType"></h3>
+
+            <p id="artistDebut"></p>
+        </section>
+
+        <section
+            class="profile-info"
+            id="artistInfoSection"
+            hidden
+        >
+            <div class="info-card">
+                <h2>Profile</h2>
+
+                <p>
+                    <b>Artist:</b>
+                    <span id="profileName"></span>
+                </p>
+
+                <p>
+                    <b>Type:</b>
+                    <span id="profileType"></span>
+                </p>
+
+                <p>
+                    <b>Debut:</b>
+                    <span id="profileDebut"></span>
+                </p>
+
+                <p>
+                    <b>Agency:</b>
+                    VAN ENTERTAINMENT
+                </p>
+
+                <p
+                    class="artist-description"
+                    id="artistDescription"
+                ></p>
+            </div>
+        </section>
+
+        <section
+            class="profile-error"
+            id="profileError"
+            hidden
+        >
+            <h1>Artist Not Found</h1>
+
+            <p>
+                The artist profile could not be found.
+            </p>
+
+            <a href="artists.html">
+                Back to Artists
+            </a>
+        </section>
+
+    </main>
+
+    <script
+        type="module"
+        src="js/artist-profile.js"
+    ></script>
+
+</body>
+</html>

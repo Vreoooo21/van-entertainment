@@ -82,6 +82,12 @@ async function loadPublicArtists() {
                             ? `<p>${escapeHtml(artist.description)}</p>`
                             : ""
                     }
+                    <a
+                      href="artist.html?slug=${encodeURIComponent(artist.slug)}"
+                      class="view-profile-btn"
+                    >
+                       View Profile
+                    </a>
                 </div>
             </article>
         `;
